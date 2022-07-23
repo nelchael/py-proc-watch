@@ -1,0 +1,65 @@
+[tool.poetry]
+name = "py-proc-watch"
+version = "0.1.0"
+description = "Pure Python procps \"watch\" replacement"
+authors = ["Krzysztof Pawlik <krzysiek.pawlik@people.pl>"]
+maintainers = ["Krzysztof Pawlik <krzysiek.pawlik@people.pl>"]
+license = "MIT"
+homepage = "https://github.com/nelchael/py-proc-watch"
+repository = "https://github.com/nelchael/py-proc-watch"
+classifiers =[
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: System Administrators",
+    "Operating System :: OS Independent",
+    "Topic :: System :: Monitoring",
+    "Topic :: Utilities",
+]
+readme = "README.md"
+packages =[
+    { include = "py_proc_watch.py" },
+    { include = "py_proc_watch_test.py", format = "sdist" },
+]
+
+[tool.poetry.scripts]
+pywatch = 'py_proc_watch:_entry_point'
+
+[tool.poetry.dependencies]
+python = "^3.8"
+colorama = "^0.4.0"
+
+[tool.poetry.dev-dependencies]
+black = "*"
+coverage = "^6.0"
+flake8 = "^4.0"
+flake8-isort = "*"
+flake8-quotes = "*"
+isort = "^5.10"
+mypy = "*"
+pyproject-flake8 = "*"
+pytest = "^7.0"
+pytest-cov = "^3.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = "120"
+
+[tool.flake8]
+max-line-length = "120"
+inline-quotes = "double"
+extend-exclude = ".venv"
+
+[too.isort]
+line_lemgth = "120"
+multi_line_output = "3"
+balanced_wrapping = "true"
+include_trailing_comma = "true"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--junitxml=pytest-junit.xml --cov=py_proc_watch --cov-report term-missing --cov-report xml:cov.xml"
