@@ -49,14 +49,15 @@ Used tools:
 * [`flake8`](https://pypi.org/project/flake8/) with [`pyproject-flake8`](https://pypi.org/project/pyproject-flake8/) for linting with `pyproject.toml` support
 * [`mypy`](https://pypi.org/project/mypy/) for type checking
 * [`pytest`](https://pypi.org/project/pytest/) for running test
+* [`poethepoet`](https://pypi.org/project/poethepoet/) for easily running all of the above
 
 The _magic_ incantation:
 
 ```shell
-poetry run isort . && poetry run black . && poetry run pflake8 . && poetry run mypy . && poetry run pytest
+poetry run poe check
 ```
 
-will run all of the above tools for you.
+will run all of the lint and test tools for you.
 
 ## Contributing and reporting issues
 

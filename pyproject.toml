@@ -41,6 +41,7 @@ mypy = "*"
 pyproject-flake8 = "*"
 pytest = "^7.0"
 pytest-cov = "^3.0"
+poethepoet = "^0.16"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -63,3 +64,15 @@ include_trailing_comma = "true"
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "--junitxml=pytest-junit.xml --cov=py_proc_watch --cov-report term-missing --cov-report xml:cov.xml"
+
+[tool.poe.tasks]
+lint = [
+	{ shell = "isort ." },
+	{ shell = "black ." },
+	{ shell = "pflake8 ." },
+	{ shell = "mypy ." },
+]
+test = [
+	{ shell = "pytest" },
+]
+check = ["lint", "test"]
