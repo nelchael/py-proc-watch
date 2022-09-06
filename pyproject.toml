@@ -39,7 +39,7 @@ flake8-quotes = "*"
 isort = "^5.10"
 mypy = "*"
 pyproject-flake8 = "*"
-pytest = "^7.0"
+pytest = "^7.1"
 pytest-cov = "^3.0"
 poethepoet = "^0.16"
 
