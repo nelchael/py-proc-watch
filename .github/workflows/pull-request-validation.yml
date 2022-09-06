@@ -6,25 +6,12 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+      - run: pipx install poetry
       - uses: actions/setup-python@v4
         id: setup-python
         with:
           python-version: '3.10'
-      - uses: snok/install-poetry@v1
-        with:
-          virtualenvs-in-project: true
-      - uses: actions/cache@v2
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('poetry.lock') }}
+          cache: 'poetry'
       - run: poetry install --remove-untracked
       - run: poetry run poe lint
       - run: poetry run poe test
-      - uses: actions/upload-artifact@v3
-        with:
-          name: code-coverage-report
-          path: cov.xml
-      - uses: actions/upload-artifact@v3
-        with:
-          name: unit-test-report
-          path: pytest-junit.xml
