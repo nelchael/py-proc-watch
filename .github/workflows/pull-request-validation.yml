@@ -12,6 +12,6 @@ jobs:
         with:
           python-version: '3.10'
           cache: 'poetry'
-      - run: poetry install --remove-untracked
+      - run: poetry install --sync --no-root
       - run: poetry run poe lint
       - run: poetry run poe test
