@@ -20,3 +20,11 @@ jobs:
       - run: poetry install --remove-untracked
       - run: poetry run poe lint
       - run: poetry run poe test
+      - uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage-report
+          path: cov.xml
+      - uses: actions/upload-artifact@v3
+        with:
+          name: unit-test-report
+          path: pytest-junit.xml
