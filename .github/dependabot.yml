@@ -8,3 +8,9 @@ updates:
       interval: "daily"
     reviewers:
       - "nelchael"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    reviewers:
+      - "nelchael"
