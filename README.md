@@ -1,5 +1,7 @@
 # py-proc-watch
 
+[![PyPI version](https://badge.fury.io/py/py-proc-watch.svg)](https://badge.fury.io/py/py-proc-watch)
+
 Library and command line tool for watching process output. This is more or less a simpler version of `watch` from [procps](https://gitlab.com/procps-ng/procps).
 
 The main differences come from defaults:
