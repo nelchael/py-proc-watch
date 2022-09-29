@@ -40,7 +40,7 @@ isort = "^5.10"
 mypy = "*"
 pyproject-flake8 = "^5.0"
 pytest = "^7.1"
-pytest-cov = "^3.0"
+pytest-cov = "^4.0"
 poethepoet = "^0.16"
 
 [build-system]
