@@ -156,7 +156,7 @@ def watch(command: str, interval: float = 1.0, precise: bool = False, show_debug
             start_time = time.time()
             sys.stdout.write(
                 colorama.Cursor.POS(1, 1)
-                + colorama.Fore.LIGHTBLACK_EX
+                + (colorama.Fore.LIGHTBLACK_EX if command_result.exit_status == 0 else colorama.Fore.LIGHTRED_EX)
                 + status_line_left
                 + status_line_right
                 + colorama.Fore.RESET
