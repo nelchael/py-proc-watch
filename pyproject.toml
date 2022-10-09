@@ -67,8 +67,8 @@ addopts = "--junitxml=pytest-junit.xml --cov=py_proc_watch --cov-report term-mis
 
 [tool.poe.tasks]
 lint = [
-	{ shell = "isort ." },
-	{ shell = "black ." },
+	{ shell = "isort --check ." },
+	{ shell = "black --check ." },
 	{ shell = "pflake8 ." },
 	{ shell = "mypy ." },
 ]
