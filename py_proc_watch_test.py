@@ -259,7 +259,7 @@ def test_watch_normal_call(
         0.3,  # Output write time
     ]
     mock_get_output.return_value = py_proc_watch.CommandResult()
-    mock_get_output.return_value.exit_status = 123
+    mock_get_output.return_value.exit_status = 0
     mock_get_output.return_value.add_line("1\n")
     mock_get_output.return_value.add_line("2\n")
     mock_get_output.return_value.add_line("3\n")
@@ -274,7 +274,9 @@ def test_watch_normal_call(
     mock_get_output.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, 4 - 1)
     mock_stdout.write.assert_called_once()
     written_out = mock_stdout.write.call_args.args[0]
-    assert "Every 1.0s: a-command (exit status: 123)" in written_out
+    assert written_out.startswith(
+        f"{colorama.Cursor.POS(1, 1)}{colorama.Fore.LIGHTBLACK_EX}Every 1.0s: a-command (exit status: 0) "
+    )
     assert (
         f"1{colorama.ansi.clear_line(0)}\n2{colorama.ansi.clear_line(0)}\n3{colorama.ansi.clear_line(0)}" in written_out
     )
@@ -321,7 +323,9 @@ def test_watch_normal_call_narrow_header(
     mock_get_output.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, 4 - 1)
     mock_stdout.write.assert_called_once()
     written_out = mock_stdout.write.call_args.args[0]
-    assert "Every 1.0s: a-command (exit status: 12… " in written_out
+    assert written_out.startswith(
+        f"{colorama.Cursor.POS(1, 1)}{colorama.Fore.LIGHTRED_EX}Every 1.0s: a-command (exit status: 12… "
+    )
     assert (
         f"1{colorama.ansi.clear_line(0)}\n2{colorama.ansi.clear_line(0)}\n3{colorama.ansi.clear_line(0)}" in written_out
     )
@@ -366,7 +370,9 @@ def test_watch_normal_call_one_line_output(
     mock_get_output.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, 4 - 1)
     mock_stdout.write.assert_called_once()
     written_out = mock_stdout.write.call_args.args[0]
-    assert "Every 1.0s: a-command (exit status: 123)" in written_out
+    assert written_out.startswith(
+        f"{colorama.Cursor.POS(1, 1)}{colorama.Fore.LIGHTRED_EX}Every 1.0s: a-command (exit status: 123) "
+    )
     assert (
         f"1{colorama.ansi.clear_line(0)}\n{py_proc_watch.PADDING_LINE}{py_proc_watch.PADDING_LINE.rstrip()}"
         in written_out
@@ -399,7 +405,7 @@ def test_watch_precise(
         0.3,  # Output write time
     ]
     mock_get_output.return_value = py_proc_watch.CommandResult()
-    mock_get_output.return_value.exit_status = 123
+    mock_get_output.return_value.exit_status = 0
     mock_get_output.return_value.add_line("1\n")
     mock_get_output.return_value.add_line("2\n")
     mock_get_output.return_value.add_line("3\n")
@@ -414,7 +420,9 @@ def test_watch_precise(
     mock_get_output.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, 4 - 1)
     mock_stdout.write.assert_called_once()
     written_out = mock_stdout.write.call_args.args[0]
-    assert "Every 2.0s: a-command (exit status: 123)" in written_out
+    assert written_out.startswith(
+        f"{colorama.Cursor.POS(1, 1)}{colorama.Fore.LIGHTBLACK_EX}Every 2.0s: a-command (exit status: 0) "
+    )
     assert (
         f"1{colorama.ansi.clear_line(0)}\n2{colorama.ansi.clear_line(0)}\n3{colorama.ansi.clear_line(0)}" in written_out
     )
@@ -461,7 +469,9 @@ def test_watch_precise_long_command(
     mock_get_output.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, 4 - 1)
     mock_stdout.write.assert_called_once()
     written_out = mock_stdout.write.call_args.args[0]
-    assert "Every 2.0s: a-command (exit status: 123)" in written_out
+    assert written_out.startswith(
+        f"{colorama.Cursor.POS(1, 1)}{colorama.Fore.LIGHTRED_EX}Every 2.0s: a-command (exit status: 123) "
+    )
     assert (
         f"1{colorama.ansi.clear_line(0)}\n2{colorama.ansi.clear_line(0)}\n3{colorama.ansi.clear_line(0)}" in written_out
     )
@@ -508,7 +518,9 @@ def test_watch_debug(
     mock_get_output.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, 4 - 1)
     mock_stdout.write.assert_called_once()
     written_out = mock_stdout.write.call_args.args[0]
-    assert "Every 1.0s: a-command (exit status: 123)" in written_out
+    assert written_out.startswith(
+        f"{colorama.Cursor.POS(1, 1)}{colorama.Fore.LIGHTRED_EX}Every 1.0s: a-command (exit status: 123) "
+    )
     assert (
         f"1{colorama.ansi.clear_line(0)}\n2{colorama.ansi.clear_line(0)}\n3{colorama.ansi.clear_line(0)}" in written_out
     )
