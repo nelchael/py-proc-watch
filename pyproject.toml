@@ -30,7 +30,7 @@ pywatch = 'py_proc_watch:_entry_point'
 python = "^3.8"
 colorama = "^0.4.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 black = "*"
 coverage = "^6.5"
 flake8 = "^5.0"

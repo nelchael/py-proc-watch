@@ -42,7 +42,7 @@ options:
 
 ## Development
 
-`py-proc-watch` uses [Python Poetry](https://python-poetry.org/) to manage dependencies.
+`py-proc-watch` uses [Python Poetry](https://python-poetry.org/) to manage dependencies, version 1.3.0 or later is required due to lock file format.
 
 Used tools:
 
