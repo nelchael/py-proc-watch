@@ -59,7 +59,13 @@ The _magic_ incantation:
 poetry run poe check
 ```
 
-will run all of the lint and test tools for you.
+will run all of the lint and test tools for you. During development running:
+
+```shell
+poetry run poe format
+```
+
+Will run `isort` and `black` to format the source code, `flake8` and `mypy` will be executed after code formatting to check for violations.
 
 ## Contributing and reporting issues
 
