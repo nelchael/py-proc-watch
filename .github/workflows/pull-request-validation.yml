@@ -18,5 +18,4 @@ jobs:
           python-version: ${{ matrix.version }}
           cache: 'poetry'
       - run: poetry install --sync --no-root
-      - run: poetry run poe lint
-      - run: poetry run poe test
+      - run: poetry run poe check

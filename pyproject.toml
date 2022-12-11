@@ -66,13 +66,9 @@ minversion = "6.0"
 addopts = "--junitxml=pytest-junit.xml --cov=py_proc_watch --cov-report term-missing --cov-report xml:cov.xml"
 
 [tool.poe.tasks]
-lint = [
-	{ shell = "isort --check ." },
-	{ shell = "black --check ." },
-	{ shell = "pflake8 ." },
-	{ shell = "mypy ." },
-]
-test = [
-	{ shell = "pytest" },
-]
-check = ["lint", "test"]
+_format = [ { shell = "isort . && black ." } ]
+_check = [ { shell = "isort --check . && black --check ." } ]
+_lint = [ { shell = "pflake8 . && mypy ." } ]
+_test = [ { shell = "pytest" } ]
+format = [ "_format", "_lint" ]
+check = [ "_check", "_lint", "_test" ]
