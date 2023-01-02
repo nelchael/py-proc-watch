@@ -36,12 +36,14 @@ coverage = "^7"
 flake8 = "^6"
 flake8-isort = "*"
 flake8-quotes = "*"
+flake8-use-fstring = "*"
+flake8-use-pathlib = "*"
 isort = "^5"
 mypy = "*"
+poethepoet = "^0"
 pyproject-flake8 = "^6"
 pytest = "^7"
 pytest-cov = "^4"
-poethepoet = "^0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -53,7 +55,7 @@ line-length = "120"
 [tool.flake8]
 max-line-length = "120"
 inline-quotes = "double"
-extend-exclude = ".venv"
+extend-exclude = [".venv", ".mypy_cache", ".pytest_cache"]
 
 [too.isort]
 line_lemgth = "120"
