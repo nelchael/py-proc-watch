@@ -19,3 +19,9 @@ jobs:
           cache: 'poetry'
       - run: poetry install --sync --no-root
       - run: poetry run poe check
+  markdownlint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm install -g markdownlint-cli@0.33.0
+      - run: markdownlint . --ignore LICENSE.md
