@@ -196,7 +196,7 @@ def main(command_line_args: List[str]):
     )
     options = parser.parse_args(command_line_args)
 
-    colorama.init()
+    colorama.just_fix_windows_console()
     watch(
         command=" ".join(options.command), interval=options.interval, precise=options.precise, show_debug=options.debug
     )
