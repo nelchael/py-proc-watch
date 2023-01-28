@@ -531,7 +531,7 @@ def test_watch_debug(
 
 
 @unittest.mock.patch("py_proc_watch.watch")
-@unittest.mock.patch("colorama.init")
+@unittest.mock.patch("colorama.just_fix_windows_console")
 @pytest.mark.parametrize(
     ["args", "expected_exit_code"],
     [
@@ -554,19 +554,22 @@ def test_watch_debug(
     ids=str,
 )
 def test_main_no_command(
-    mocked_colorama_init: unittest.mock.Mock, mocked_watch: unittest.mock.Mock, args: List[str], expected_exit_code: int
+    mocked_colorama_just_fix_windows_console: unittest.mock.Mock,
+    mocked_watch: unittest.mock.Mock,
+    args: List[str],
+    expected_exit_code: int,
 ):
     with pytest.raises(SystemExit) as exception_info:
         py_proc_watch.main(args)
 
     assert exception_info.value.code == expected_exit_code
 
-    mocked_colorama_init.assert_not_called()
+    mocked_colorama_just_fix_windows_console.assert_not_called()
     mocked_watch.assert_not_called()
 
 
 @unittest.mock.patch("py_proc_watch.watch")
-@unittest.mock.patch("colorama.init")
+@unittest.mock.patch("colorama.just_fix_windows_console")
 @pytest.mark.parametrize(
     ["args", "expected_command", "expected_interval", "expected_precise", "expected_debug"],
     [
@@ -580,7 +583,7 @@ def test_main_no_command(
     ids=str,
 )
 def test_main_with_command(
-    mocked_colorama_init: unittest.mock.Mock,
+    mocked_colorama_just_fix_windows_console: unittest.mock.Mock,
     mocked_watch: unittest.mock.Mock,
     args: List[str],
     expected_command: str,
@@ -590,7 +593,7 @@ def test_main_with_command(
 ):
     py_proc_watch.main(args)
 
-    mocked_colorama_init.assert_called_once()
+    mocked_colorama_just_fix_windows_console.assert_called_once()
     mocked_watch.assert_called_once_with(
         command=expected_command,
         interval=pytest.approx(expected_interval),
