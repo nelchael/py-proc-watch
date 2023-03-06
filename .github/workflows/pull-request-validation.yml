@@ -17,7 +17,8 @@ jobs:
         with:
           python-version: ${{ matrix.version }}
           cache: 'poetry'
-      - run: poetry install --sync --no-root
+      - run: poetry install --sync --no-root || poetry install --sync --no-root
+        shell: bash
       - run: poetry run poe check
   markdownlint:
     runs-on: ubuntu-22.04
