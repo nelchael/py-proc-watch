@@ -34,7 +34,7 @@ def test_command_result():
 
 
 @pytest.mark.parametrize(
-    ["buffer", "expected_lines", "max_lines"],
+    ("buffer", "expected_lines", "max_lines"),
     [
         (io.StringIO("1\n2\n3\n"), ["1\n"], 1),
         (io.StringIO("1\n2\n3\n"), ["1\n", "2\n", "3\n"], 3),
@@ -139,7 +139,7 @@ def test_get_output_large(mocked_popen: unittest.mock.Mock):
 
 
 def test_ansi_aware_line_trim():
-    ST = f"{colorama.Style.RESET_ALL}"
+    st = f"{colorama.Style.RESET_ALL}"
 
     with pytest.raises(ValueError, match=r"Invalid maximum width: -1"):
         py_proc_watch.ansi_aware_line_trim(None, -1)
@@ -147,14 +147,14 @@ def test_ansi_aware_line_trim():
     assert py_proc_watch.ansi_aware_line_trim("foo", 80) == f"foo{colorama.ansi.clear_line(0)}\n"
     assert py_proc_watch.ansi_aware_line_trim("f\033[0Koo", 80) == f"foo{colorama.ansi.clear_line(0)}\n"
 
-    assert py_proc_watch.ansi_aware_line_trim("foo", 1) == f"f{ST}"
-    assert py_proc_watch.ansi_aware_line_trim("f\033[0Koo", 1) == f"f{ST}"
+    assert py_proc_watch.ansi_aware_line_trim("foo", 1) == f"f{st}"
+    assert py_proc_watch.ansi_aware_line_trim("f\033[0Koo", 1) == f"f{st}"
 
-    assert py_proc_watch.ansi_aware_line_trim("f\033[0Koo", 2) == f"fo{ST}"
+    assert py_proc_watch.ansi_aware_line_trim("f\033[0Koo", 2) == f"fo{st}"
 
-    assert py_proc_watch.ansi_aware_line_trim("f\033[30moo", 1) == f"f{ST}"
-    assert py_proc_watch.ansi_aware_line_trim("f\033[30moo", 2) == f"f\033[30mo{ST}"
-    assert py_proc_watch.ansi_aware_line_trim("f\033[30moo", 3) == f"f\033[30moo{ST}"
+    assert py_proc_watch.ansi_aware_line_trim("f\033[30moo", 1) == f"f{st}"
+    assert py_proc_watch.ansi_aware_line_trim("f\033[30moo", 2) == f"f\033[30mo{st}"
+    assert py_proc_watch.ansi_aware_line_trim("f\033[30moo", 3) == f"f\033[30moo{st}"
     assert py_proc_watch.ansi_aware_line_trim("f\033[30moo", 4) == f"f\033[30moo{colorama.ansi.clear_line(0)}\n"
 
     assert (
@@ -164,7 +164,7 @@ def test_ansi_aware_line_trim():
             159,
         )
         == "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
-        f"1234567890123456789012345678901234567890123456789012345678901234567890123456789{ST}"
+        f"1234567890123456789012345678901234567890123456789012345678901234567890123456789{st}"
     )
 
 
@@ -533,7 +533,7 @@ def test_watch_debug(
 @unittest.mock.patch("py_proc_watch.watch")
 @unittest.mock.patch("colorama.just_fix_windows_console")
 @pytest.mark.parametrize(
-    ["args", "expected_exit_code"],
+    ("args", "expected_exit_code"),
     [
         ([], 2),
         (["-h"], 0),
@@ -571,7 +571,7 @@ def test_main_no_command(
 @unittest.mock.patch("py_proc_watch.watch")
 @unittest.mock.patch("colorama.just_fix_windows_console")
 @pytest.mark.parametrize(
-    ["args", "expected_command", "expected_interval", "expected_precise", "expected_debug"],
+    ("args", "expected_command", "expected_interval", "expected_precise", "expected_debug"),
     [
         (["whoami"], "whoami", 1.0, False, False),
         (["-p", "whoami"], "whoami", 1.0, True, False),
