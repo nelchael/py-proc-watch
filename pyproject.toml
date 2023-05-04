@@ -33,32 +33,29 @@ colorama = "^0.4.0"
 [tool.poetry.group.dev.dependencies]
 black = "*"
 coverage = "^7"
-flake8 = "^6"
-flake8-isort = "*"
-flake8-quotes = "*"
-flake8-use-fstring = "*"
-flake8-use-pathlib = "*"
 isort = "^5"
 mypy = "*"
 poethepoet = "^0"
-pyproject-flake8 = "^6"
 pytest = "^7"
 pytest-cov = "^4"
+ruff = "^0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
-line-length = "120"
+line-length = 120
 
-[tool.flake8]
-max-line-length = "120"
+[tool.ruff]
+line-length = 120
+select = ["F", "E", "N", "A", "C4", "ISC", "PT", "Q", "RET", "SLF", "ARG", "PTH", "RUF"]
+
+[tool.ruff.flake8-quotes]
 inline-quotes = "double"
-extend-exclude = [".venv", ".mypy_cache", ".pytest_cache"]
 
 [tool.isort]
-line_length = "120"
+line_length = 120
 multi_line_output = "3"
 balanced_wrapping = "true"
 include_trailing_comma = "true"
@@ -70,7 +67,7 @@ addopts = "--junitxml=pytest-junit.xml --cov=py_proc_watch --cov-report term-mis
 [tool.poe.tasks]
 _format = [ { shell = "isort . && black ." } ]
 _check = [ { shell = "isort --check . && black --check ." } ]
-_lint = [ { shell = "pflake8 . && mypy ." } ]
+_lint = [ { shell = "ruff . && mypy ." } ]
 _test = [ { shell = "pytest" } ]
 format = [ "_format", "_lint" ]
 check = [ "_check", "_lint", "_test" ]

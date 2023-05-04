@@ -1,5 +1,6 @@
 .coverage
 .mypy_cache
+.ruff_cache
 .venv
 cov.xml
 dist

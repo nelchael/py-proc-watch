@@ -48,7 +48,7 @@ Used tools:
 
 * [`isort`](https://pypi.org/project/isort/) for keeping imports sane
 * [`black`](https://pypi.org/project/black/) for enforcing a consistent code style
-* [`flake8`](https://pypi.org/project/flake8/) with [`pyproject-flake8`](https://pypi.org/project/pyproject-flake8/) for linting with `pyproject.toml` support
+* [`ruff`](https://pypi.org/project/ruff/) for linting
 * [`mypy`](https://pypi.org/project/mypy/) for type checking
 * [`pytest`](https://pypi.org/project/pytest/) for running test
 * [`poethepoet`](https://pypi.org/project/poethepoet/) for easily running all of the above
@@ -65,7 +65,7 @@ will run all of the lint and test tools for you. During development running:
 poetry run poe format
 ```
 
-Will run `isort` and `black` to format the source code, `flake8` and `mypy` will be executed after code formatting to check for violations.
+Will run `isort` and `black` to format the source code, `ruff` and `mypy` will be executed after code formatting to check for violations.
 
 ## Contributing and reporting issues
 

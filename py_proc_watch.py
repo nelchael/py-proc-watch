@@ -91,12 +91,11 @@ def ansi_aware_line_trim(line: str, max_width: int) -> str:
     line = REMOVE_OTHER_ANSI_SEQS.sub("", line.rstrip())
     if len(REMOVE_ANSI_COLOR_SEQS.sub("", line)) < max_width:
         return line + colorama.ansi.clear_line(0) + "\n"
-    else:
-        chop_at = max_width
-        while len(INCOMPLETE_ANSI_SEQ.sub("", REMOVE_ANSI_COLOR_SEQS.sub("", line[:chop_at]))) < max_width:
-            chop_at += 1
-        chopped_line = INCOMPLETE_ANSI_SEQ.sub("", line[:chop_at])
-        return chopped_line + colorama.Style.RESET_ALL
+    chop_at = max_width
+    while len(INCOMPLETE_ANSI_SEQ.sub("", REMOVE_ANSI_COLOR_SEQS.sub("", line[:chop_at]))) < max_width:
+        chop_at += 1
+    chopped_line = INCOMPLETE_ANSI_SEQ.sub("", line[:chop_at])
+    return chopped_line + colorama.Style.RESET_ALL
 
 
 def check_shell(command: str) -> Tuple[bool, List[str]]:
@@ -105,8 +104,7 @@ def check_shell(command: str) -> Tuple[bool, List[str]]:
         if not shell:
             raise PyProcWatchError(f"Failed to determine shell, tried {shell_env}")
         return False, [shell, "-c", command]
-    else:
-        return True, shlex.split(command)
+    return True, shlex.split(command)
 
 
 def watch(command: str, interval: float = 1.0, precise: bool = False, show_debug: bool = False):

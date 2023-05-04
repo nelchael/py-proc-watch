@@ -160,90 +160,6 @@ files = [
 test = ["pytest (>=6)"]
 
 [[package]]
-name = "flake8"
-version = "6.0.0"
-description = "the modular source code checker: pep8 pyflakes and co"
-category = "dev"
-optional = false
-python-versions = ">=3.8.1"
-files = [
-    {file = "flake8-6.0.0-py2.py3-none-any.whl", hash = "sha256:3833794e27ff64ea4e9cf5d410082a8b97ff1a06c16aa3d2027339cd0f1195c7"},
-    {file = "flake8-6.0.0.tar.gz", hash = "sha256:c61007e76655af75e6785a931f452915b371dc48f56efd765247c8fe68f2b181"},
-]
-
-[package.dependencies]
-mccabe = ">=0.7.0,<0.8.0"
-pycodestyle = ">=2.10.0,<2.11.0"
-pyflakes = ">=3.0.0,<3.1.0"
-
-[[package]]
-name = "flake8-isort"
-version = "6.0.0"
-description = "flake8 plugin that integrates isort ."
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "flake8-isort-6.0.0.tar.gz", hash = "sha256:537f453a660d7e903f602ecfa36136b140de279df58d02eb1b6a0c84e83c528c"},
-    {file = "flake8_isort-6.0.0-py3-none-any.whl", hash = "sha256:aa0cac02a62c7739e370ce6b9c31743edac904bae4b157274511fc8a19c75bbc"},
-]
-
-[package.dependencies]
-flake8 = "*"
-isort = ">=5.0.0,<6"
-
-[package.extras]
-test = ["pytest"]
-
-[[package]]
-name = "flake8-quotes"
-version = "3.3.2"
-description = "Flake8 lint for quotes."
-category = "dev"
-optional = false
-python-versions = "*"
-files = [
-    {file = "flake8-quotes-3.3.2.tar.gz", hash = "sha256:6e26892b632dacba517bf27219c459a8396dcfac0f5e8204904c5a4ba9b480e1"},
-]
-
-[package.dependencies]
-flake8 = "*"
-
-[[package]]
-name = "flake8-use-fstring"
-version = "1.4"
-description = "Flake8 plugin for string formatting style."
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "flake8-use-fstring-1.4.tar.gz", hash = "sha256:6550bf722585eb97dffa8343b0f1c372101f5c4ab5b07ebf0edd1c79880cdd39"},
-]
-
-[package.dependencies]
-flake8 = ">=3"
-
-[package.extras]
-ci = ["coverage (>=4.0.0,<5.0.0)", "coveralls", "flake8-builtins", "flake8-commas", "flake8-fixme", "flake8-print", "flake8-quotes", "flake8-todo", "pytest (>=4)", "pytest-cov (>=2)"]
-dev = ["coverage (>=4.0.0,<5.0.0)", "flake8-builtins", "flake8-commas", "flake8-fixme", "flake8-print", "flake8-quotes", "flake8-todo", "pytest (>=4)", "pytest-cov (>=2)"]
-test = ["coverage (>=4.0.0,<5.0.0)", "flake8-builtins", "flake8-commas", "flake8-fixme", "flake8-print", "flake8-quotes", "flake8-todo", "pytest (>=4)", "pytest-cov (>=2)"]
-
-[[package]]
-name = "flake8-use-pathlib"
-version = "0.3.0"
-description = "A plugin for flake8 finding use of functions that can be replaced by pathlib module."
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "flake8-use-pathlib-0.3.0.tar.gz", hash = "sha256:0ef19f255a51601bcf04ff54f25ef8a466dff68210cd95b4f1db36a78ace5223"},
-    {file = "flake8_use_pathlib-0.3.0-py3-none-any.whl", hash = "sha256:c7b6d71575b575f7d70ebf3f1d7f2dd6685e401d3280208f1db9dbb6bfa32608"},
-]
-
-[package.dependencies]
-flake8 = ">=3.6"
-
-[[package]]
 name = "iniconfig"
 version = "2.0.0"
 description = "brain-dead simple config-ini parsing"
@@ -272,18 +188,6 @@ colors = ["colorama (>=0.4.3)"]
 pipfile-deprecated-finder = ["pip-shims (>=0.5.2)", "pipreqs", "requirementslib"]
 plugins = ["setuptools"]
 requirements-deprecated-finder = ["pip-api", "pipreqs"]
-
-[[package]]
-name = "mccabe"
-version = "0.7.0"
-description = "McCabe checker, plugin for flake8"
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "mccabe-0.7.0-py2.py3-none-any.whl", hash = "sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e"},
-    {file = "mccabe-0.7.0.tar.gz", hash = "sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325"},
-]
 
 [[package]]
 name = "mypy"
@@ -414,14 +318,14 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "poethepoet"
-version = "0.19.0"
+version = "0.20.0"
 description = "A task runner that works well with poetry."
 category = "dev"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "poethepoet-0.19.0-py3-none-any.whl", hash = "sha256:87038be589077e4b407050a9da644d9cd9e4076ccfc8abc7f855cf6870d5c6c2"},
-    {file = "poethepoet-0.19.0.tar.gz", hash = "sha256:897eb85ec15876d79befc7d19d4c80ce7c8b214d1bb0dcfec640abd81616bfed"},
+    {file = "poethepoet-0.20.0-py3-none-any.whl", hash = "sha256:cb37be15f3895ccc65ddf188c2e3d8fb79e26cc9d469a6098cb1c6f994659f6f"},
+    {file = "poethepoet-0.20.0.tar.gz", hash = "sha256:ca5a2a955f52dfb0a53fad3c989ef0b69ce3d5ec0f6bfa9b1da1f9e32d262e20"},
 ]
 
 [package.dependencies]
@@ -430,46 +334,6 @@ tomli = ">=1.2.2"
 
 [package.extras]
 poetry-plugin = ["poetry (>=1.0,<2.0)"]
-
-[[package]]
-name = "pycodestyle"
-version = "2.10.0"
-description = "Python style guide checker"
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "pycodestyle-2.10.0-py2.py3-none-any.whl", hash = "sha256:8a4eaf0d0495c7395bdab3589ac2db602797d76207242c17d470186815706610"},
-    {file = "pycodestyle-2.10.0.tar.gz", hash = "sha256:347187bdb476329d98f695c213d7295a846d1152ff4fe9bacb8a9590b8ee7053"},
-]
-
-[[package]]
-name = "pyflakes"
-version = "3.0.1"
-description = "passive checker of Python programs"
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "pyflakes-3.0.1-py2.py3-none-any.whl", hash = "sha256:ec55bf7fe21fff7f1ad2f7da62363d749e2a470500eab1b555334b67aa1ef8cf"},
-    {file = "pyflakes-3.0.1.tar.gz", hash = "sha256:ec8b276a6b60bd80defed25add7e439881c19e64850afd9b346283d4165fd0fd"},
-]
-
-[[package]]
-name = "pyproject-flake8"
-version = "6.0.0.post1"
-description = "pyproject-flake8 (`pflake8`), a monkey patching wrapper to connect flake8 with pyproject.toml configuration"
-category = "dev"
-optional = false
-python-versions = ">=3.8.1"
-files = [
-    {file = "pyproject-flake8-6.0.0.post1.tar.gz", hash = "sha256:d43421caca0ef8a672874405fe63c722b0333e3c22c41648c6df60f21bab2b6b"},
-    {file = "pyproject_flake8-6.0.0.post1-py3-none-any.whl", hash = "sha256:bdc7ca9b967b9724983903489b8943b72c668178fb69f03e8774ec74f6a13782"},
-]
-
-[package.dependencies]
-flake8 = "6.0.0"
-tomli = {version = "*", markers = "python_version < \"3.11\""}
 
 [[package]]
 name = "pytest"
@@ -514,6 +378,33 @@ pytest = ">=4.6"
 testing = ["fields", "hunter", "process-tests", "pytest-xdist", "six", "virtualenv"]
 
 [[package]]
+name = "ruff"
+version = "0.0.264"
+description = "An extremely fast Python linter, written in Rust."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "ruff-0.0.264-py3-none-macosx_10_7_x86_64.whl", hash = "sha256:ec2fa192c035b8b68cc2b91049c561cd69543e2b8c4d157d9aa7727320bedcca"},
+    {file = "ruff-0.0.264-py3-none-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:d97ba8db0fb601ffe9ee996ebb97c698e427a2fd4514fefbe7b803111354f783"},
+    {file = "ruff-0.0.264-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4564e0f245eb515c6ed63988c21e9c40bcfd485cd1ec63bdd790f9a81d301f15"},
+    {file = "ruff-0.0.264-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:323ae6c1702b26c96d0fbf939c5959c37e79021f86b70f63634df918bc77f36e"},
+    {file = "ruff-0.0.264-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:18a29ed37bf8cfe6dce8a2db56c313a64c0804095108753621f3c3321e0c9c5f"},
+    {file = "ruff-0.0.264-py3-none-manylinux_2_17_ppc64.manylinux2014_ppc64.whl", hash = "sha256:d628de91e2be7a83128526636097d2dd890669a06143f826f6c591d79aeefbc4"},
+    {file = "ruff-0.0.264-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:91c6eb4f979b661a2dd850d9ac803842bb7b66d4926de84f09c787af82590f73"},
+    {file = "ruff-0.0.264-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:04ec5d75e4bca754cedd20d53e2ba4920d6259e7579abfb2e8e30c3c80e41b17"},
+    {file = "ruff-0.0.264-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:71fd865ebacc1083259b3fb7e3eb45235a86e62e21830b8a6b067be0ec54aa2e"},
+    {file = "ruff-0.0.264-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:cd4f60ffc3eb15802c554a9c8581bf2117c4d3d06fbc57e0ba58f04cb1aaa47f"},
+    {file = "ruff-0.0.264-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:05ee163a046fc593d150179d23f4af447fb82f3e59cd34e031ea0868c65bb8e8"},
+    {file = "ruff-0.0.264-py3-none-musllinux_1_2_i686.whl", hash = "sha256:484e395d1984ab9e1e66bd42e7a5192decfee86998d07d36ee50b2fadccc8734"},
+    {file = "ruff-0.0.264-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:67326fdc9ac0a1b13e229c6e24e8d115863c52cd710faaaaa588851535281d6c"},
+    {file = "ruff-0.0.264-py3-none-win32.whl", hash = "sha256:5a8658ebcc37d62f72840cbdf564171c1a2b6831db482b4d917962541a2f4a44"},
+    {file = "ruff-0.0.264-py3-none-win_amd64.whl", hash = "sha256:068a82a29d80848a56e3d9d4308e6e0ca8b2ecdaf5ac342a292545a59b7f2c21"},
+    {file = "ruff-0.0.264-py3-none-win_arm64.whl", hash = "sha256:3e2c38449548e122f2612843a7c04e22b4fd491656955c57b8cb05df11639ad6"},
+    {file = "ruff-0.0.264.tar.gz", hash = "sha256:8fcd4b693ca1374eb7a5796581c90689f884f98f388740d94f0702fd30f8f78f"},
+]
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -540,4 +431,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "aefbc262ed5a3c76e0cb1e81b0caedeb5b2d3f502b3d924248b4a96b2403697d"
+content-hash = "64fdf70aeb181940845babc856407825775c5f32591d5bc4c3c3b1d632bef59a"
