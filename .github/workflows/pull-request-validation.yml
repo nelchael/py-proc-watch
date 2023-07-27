@@ -3,7 +3,25 @@ on:
 
 jobs:
 
-  tests-os:
+  tests-python-versions:
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ['3.8', '3.9', '3.10', '3.11']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: pipx install 'poetry>=1.5.0'
+      - uses: actions/setup-python@v4
+        id: setup-python
+        with:
+          python-version: ${{ matrix.version }}
+          cache: 'poetry'
+      - run: poetry install --sync --no-root || poetry install --sync --no-root
+        shell: bash
+      - run: poetry run poe check
+
+  tests-oses:
     strategy:
       fail-fast: false
       matrix:
