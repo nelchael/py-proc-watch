@@ -1,6 +1,5 @@
 .coverage
 .coverage-report.json
-.coverage-report.xml
 .mypy_cache
 .pytest_cache
 .pytest-report.xml

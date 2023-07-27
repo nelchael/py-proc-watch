@@ -60,7 +60,7 @@ profile = "black"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-v --junitxml=.pytest-report.xml --cov=py_proc_watch --cov-report term-missing --cov-report xml:.coverage-report.xml --cov-report json:.coverage-report.json"
+addopts = "-v --junitxml=.pytest-report.xml --cov=py_proc_watch --cov-report term-missing --cov-report json:.coverage-report.json"
 
 [tool.poe.tasks]
 _format = [ { shell = "isort . && black ." } ]
