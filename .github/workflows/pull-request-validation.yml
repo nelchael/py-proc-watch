@@ -2,24 +2,85 @@ on:
   pull_request
 
 jobs:
-  run-validation:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-22.04, windows-latest, macos-latest]
-        version: ['3.8', '3.9', '3.10', '3.11']
-    runs-on: ${{ matrix.os }}
+
+  run-checks-on:
+   strategy:
+     fail-fast: false
+     matrix:
+       os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+   runs-on: ${{ matrix.os }}
+   steps:
+     - uses: actions/checkout@v3
+     - run: pipx install 'poetry>=1.5.0'
+     - run: poetry install --sync --no-root || poetry install --sync --no-root
+       shell: bash
+     - run: poetry run poe check
+
+  run-checks-on-py:
+   strategy:
+     fail-fast: false
+     matrix:
+       version: ['3.8', '3.9', '3.10', '3.11']
+   runs-on: ubuntu-latest
+   steps:
+     - uses: actions/checkout@v3
+     - run: pipx install 'poetry>=1.5.0'
+     - uses: actions/setup-python@v4
+       id: setup-python
+       with:
+         python-version: ${{ matrix.version }}
+         cache: 'poetry'
+     - run: poetry install --sync --no-root
+       shell: bash
+     - run: poetry run poe check
+
+  publish-code-metrics:
+    # See <https://docs.github.com/en/rest/commits/statuses?apiVersion=2022-11-28#create-a-commit-status> for the documentation of the API.
+    runs-on: ubuntu-latest
+    env:
+      COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+      PULL_NUMBER: ${{ github.event.pull_request.number }}
     steps:
+      - name: Create statuses
+        run: |
+          set -ex
+
+          curl --location --silent --request POST --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github+json" "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" \
+            -d "{\"state\":\"pending\", \"context\":\"Code coverage\", \"description\":\"checking...\"}"
+          curl --location --silent --request POST --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github+json" "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" \
+            -d "{\"state\":\"pending\", \"context\":\"Unit tests\", \"description\":\"checking...\"}"
       - uses: actions/checkout@v3
-      - run: pipx install 'poetry>=1.3.0'
-      - uses: actions/setup-python@v4
-        id: setup-python
-        with:
-          python-version: ${{ matrix.version }}
-          cache: 'poetry'
-      - run: poetry install --sync --no-root || poetry install --sync --no-root
+      - run: pipx install 'poetry>=1.5.0'
+      - run: poetry install --sync --no-root
         shell: bash
-      - run: poetry run poe check
+      - run: poetry run pytest
+        continue-on-error: true
+      - name: Publish code metrics to statuses
+        if: ${{ always() }}
+        run: |
+          set -ex
+
+          tpc="$(python -c 'import json;tpc=json.load(open(".coverage-report.json","r"))["totals"]["percent_covered"];print(f"{tpc:.2f}");')"
+          curl --location --silent --request POST --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github+json" "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" \
+            -d "{\"state\":\"success\", \"context\":\"Code coverage\", \"description\":\"${tpc}%\"}"
+
+          all_tests="$(yq --input-format=xml '.testsuites.testsuite.+@tests' < .pytest-report.xml)"
+          failed_tests="$(yq --input-format=xml '.testsuites.testsuite.+@failures' < .pytest-report.xml)"
+          skipped_tests="$(yq --input-format=xml '.testsuites.testsuite.+@skipped' < .pytest-report.xml)"
+          error_tests="$(yq --input-format=xml '.testsuites.testsuite.+@errors' < .pytest-report.xml)"
+          passed_tests="$((all_tests - failed_tests - skipped_tests - error_tests))"
+          curl --location --silent --request POST --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github+json" "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" \
+            -d "{\"state\":\"success\", \"context\":\"Unit tests\", \"description\":\"Passed: ${passed_tests}, failed: ${failed_tests}, skipped: ${skipped_tests}\"}"
+      - name: Set statuses to failure
+        if: ${{ failure() || cancelled() }}
+        run: |
+          set -ex
+
+          curl --location --silent --request POST --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github+json" "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" \
+            -d "{\"state\":\"failure\", \"context\":\"Code coverage\"}"
+          curl --location --silent --request POST --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github+json" "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" \
+            -d "{\"state\":\"failure\", \"context\":\"Unit tests\"}"
+
   markdownlint:
     runs-on: ubuntu-22.04
     steps:
