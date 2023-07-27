@@ -1,7 +1,9 @@
 .coverage
+.coverage-report.json
+.coverage-report.xml
 .mypy_cache
+.pytest_cache
+.pytest-report.xml
 .ruff_cache
 .venv
-cov.xml
 dist
-pytest-junit.xml
