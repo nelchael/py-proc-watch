@@ -62,6 +62,10 @@ profile = "black"
 minversion = "6.0"
 addopts = "-v --junitxml=.pytest-report.xml --cov=py_proc_watch --cov-report term-missing --cov-report json:.coverage-report.json"
 
+[tool.mypy]
+strict = true
+exclude = '.+_test.py'
+
 [tool.poe.tasks]
 _format = [ { shell = "isort . && black ." } ]
 _check = [ { shell = "isort --check . && black --check ." } ]
