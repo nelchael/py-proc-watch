@@ -35,17 +35,17 @@ class CommandResult:
     total_read_bytes: int = 0
     used_bytes: int = 0
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.stdout_lines = []
 
-    def add_line(self, line: str):
+    def add_line(self, line: str) -> None:
         self.stdout_lines.append(line)
         line_len = len(line)
         self.total_read_bytes += line_len
         self.used_bytes += line_len
 
 
-def reader_thread_func(command_result: CommandResult, stream: io.TextIOBase, max_lines: int):
+def reader_thread_func(command_result: CommandResult, stream: io.TextIOBase, max_lines: int) -> None:
     while True:
         if len(command_result.stdout_lines) >= max_lines:
             read_bytes = len(stream.read(io.DEFAULT_BUFFER_SIZE))
@@ -90,12 +90,12 @@ def ansi_aware_line_trim(line: str, max_width: int) -> str:
 
     line = REMOVE_OTHER_ANSI_SEQS.sub("", line.rstrip())
     if len(REMOVE_ANSI_COLOR_SEQS.sub("", line)) < max_width:
-        return line + colorama.ansi.clear_line(0) + "\n"
+        return f"{line}{colorama.ansi.clear_line(0)}\n"
     chop_at = max_width
     while len(INCOMPLETE_ANSI_SEQ.sub("", REMOVE_ANSI_COLOR_SEQS.sub("", line[:chop_at]))) < max_width:
         chop_at += 1
     chopped_line = INCOMPLETE_ANSI_SEQ.sub("", line[:chop_at])
-    return chopped_line + colorama.Style.RESET_ALL
+    return f"{chopped_line}{colorama.Style.RESET_ALL}"
 
 
 def check_shell(command: str) -> Tuple[bool, List[str]]:
@@ -107,7 +107,7 @@ def check_shell(command: str) -> Tuple[bool, List[str]]:
     return True, shlex.split(command)
 
 
-def watch(command: str, interval: float = 1.0, precise: bool = False, show_debug: bool = False):
+def watch(command: str, interval: float = 1.0, precise: bool = False, show_debug: bool = False) -> None:
     if not command:
         raise ValueError(f"Invalid command: {command}")
     if interval < 0.0 or interval >= 24 * 60 * 60:
@@ -172,7 +172,7 @@ def watch(command: str, interval: float = 1.0, precise: bool = False, show_debug
         pass
 
 
-def main(command_line_args: List[str]):
+def main(command_line_args: List[str]) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-n",
@@ -200,7 +200,7 @@ def main(command_line_args: List[str]):
     )
 
 
-def _entry_point():
+def _entry_point() -> None:
     main(sys.argv[1:])  # pragma: no cover
 
 
