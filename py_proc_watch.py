@@ -15,8 +15,8 @@ import threading
 import time
 from typing import List, Tuple
 
-import colorama  # type: ignore
-import colorama.ansi  # type: ignore
+import colorama
+import colorama.ansi
 
 REMOVE_OTHER_ANSI_SEQS = re.compile(r"\033\[\d*[ABCDEFGJKST]")
 REMOVE_ANSI_COLOR_SEQS = re.compile(r"\033\[\d+(;\d+){0,2}m")

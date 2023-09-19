@@ -5,14 +5,14 @@ import subprocess
 import unittest.mock
 from typing import List
 
-import colorama  # type: ignore
-import colorama.ansi  # type: ignore
+import colorama
+import colorama.ansi
 import pytest
 
 import py_proc_watch
 
 
-def test_command_result():
+def test_command_result() -> None:
     cr = py_proc_watch.CommandResult()
 
     assert not cr.stdout_lines
@@ -42,7 +42,7 @@ def test_command_result():
         (io.StringIO("1\n2\n3\n" + "filler\n" * io.DEFAULT_BUFFER_SIZE), ["1\n", "2\n"], 2),
     ],
 )
-def test_reader_thread_func(buffer: io.StringIO, expected_lines: List[str], max_lines: int):
+def test_reader_thread_func(buffer: io.StringIO, expected_lines: List[str], max_lines: int) -> None:
     result = py_proc_watch.CommandResult()
     py_proc_watch.reader_thread_func(result, buffer, max_lines)
 
@@ -51,7 +51,7 @@ def test_reader_thread_func(buffer: io.StringIO, expected_lines: List[str], max_
 
 
 @unittest.mock.patch("subprocess.Popen")
-def test_get_output_no_stdout(mocked_popen: unittest.mock.Mock):
+def test_get_output_no_stdout(mocked_popen: unittest.mock.Mock) -> None:
     process_mock = unittest.mock.MagicMock()
     process_mock.__enter__.return_value = process_mock
     process_mock.stdout = None
@@ -73,7 +73,7 @@ def test_get_output_no_stdout(mocked_popen: unittest.mock.Mock):
 
 
 @unittest.mock.patch("subprocess.Popen")
-def test_get_output_failure(mocked_popen: unittest.mock.Mock):
+def test_get_output_failure(mocked_popen: unittest.mock.Mock) -> None:
     process_mock = unittest.mock.MagicMock()
     process_mock.__enter__.return_value = process_mock
     process_mock.stdout = io.StringIO("No such command\n")
@@ -95,7 +95,7 @@ def test_get_output_failure(mocked_popen: unittest.mock.Mock):
 
 
 @unittest.mock.patch("subprocess.Popen")
-def test_get_output_small(mocked_popen: unittest.mock.Mock):
+def test_get_output_small(mocked_popen: unittest.mock.Mock) -> None:
     process_mock = unittest.mock.MagicMock()
     process_mock.__enter__.return_value = process_mock
     process_mock.stdout = io.StringIO("Command result\nSecond line\nThird line\n")
@@ -117,7 +117,7 @@ def test_get_output_small(mocked_popen: unittest.mock.Mock):
 
 
 @unittest.mock.patch("subprocess.Popen")
-def test_get_output_large(mocked_popen: unittest.mock.Mock):
+def test_get_output_large(mocked_popen: unittest.mock.Mock) -> None:
     process_mock = unittest.mock.MagicMock()
     process_mock.__enter__.return_value = process_mock
     process_mock.stdout = io.StringIO("Command result\nSecond line\nThird line\n" + "filler\n" * 1024)
@@ -138,11 +138,11 @@ def test_get_output_large(mocked_popen: unittest.mock.Mock):
     assert result.stdout_lines == ["Command result\n", "Second line\n", "Third line\n"]
 
 
-def test_ansi_aware_line_trim():
+def test_ansi_aware_line_trim() -> None:
     st = f"{colorama.Style.RESET_ALL}"
 
     with pytest.raises(ValueError, match=r"Invalid maximum width: -1"):
-        py_proc_watch.ansi_aware_line_trim(None, -1)
+        py_proc_watch.ansi_aware_line_trim("", -1)
 
     assert py_proc_watch.ansi_aware_line_trim("foo", 80) == f"foo{colorama.ansi.clear_line(0)}\n"
     assert py_proc_watch.ansi_aware_line_trim("f\033[0Koo", 80) == f"foo{colorama.ansi.clear_line(0)}\n"
@@ -171,7 +171,9 @@ def test_ansi_aware_line_trim():
 @unittest.mock.patch("shutil.which")
 @unittest.mock.patch("pathlib.Path")
 @unittest.mock.patch("os.getenv")
-def test_check_shell(mock_getenv: unittest.mock.Mock, mock_path: unittest.mock.Mock, mock_which: unittest.mock.Mock):
+def test_check_shell(
+    mock_getenv: unittest.mock.Mock, mock_path: unittest.mock.Mock, mock_which: unittest.mock.Mock
+) -> None:
     mock_getenv.side_effect = [None, "/bin/shell", "shell", "missing-shell"]
 
     file_mock = unittest.mock.MagicMock()
@@ -202,9 +204,9 @@ def test_check_shell(mock_getenv: unittest.mock.Mock, mock_path: unittest.mock.M
     mock_path.assert_called()
 
 
-def test_watch_invalid_params():
-    with pytest.raises(ValueError, match=r"Invalid command: None"):
-        py_proc_watch.watch(None)
+def test_watch_invalid_params() -> None:
+    with pytest.raises(ValueError, match=r"Invalid command: "):
+        py_proc_watch.watch("")
 
     with pytest.raises(ValueError, match=r"Invalid interval value: -?[\d\.]+"):
         py_proc_watch.watch("a-command", -0.1)
@@ -213,7 +215,7 @@ def test_watch_invalid_params():
 
 
 @unittest.mock.patch("sys.stdout")
-def test_watch_tty_check(mock_stdout: unittest.mock.Mock):
+def test_watch_tty_check(mock_stdout: unittest.mock.Mock) -> None:
     mock_stdout.isatty.return_value = False
 
     with pytest.raises(py_proc_watch.PyProcWatchError, match=r"stdout is not a tty!"):
@@ -224,7 +226,7 @@ def test_watch_tty_check(mock_stdout: unittest.mock.Mock):
 
 @unittest.mock.patch("os.get_terminal_size")
 @unittest.mock.patch("sys.stdout")
-def test_watch_screen_size_check(mock_stdout: unittest.mock.Mock, mock_get_terminal_size: unittest.mock.Mock):
+def test_watch_screen_size_check(mock_stdout: unittest.mock.Mock, mock_get_terminal_size: unittest.mock.Mock) -> None:
     mock_stdout.isatty.return_value = True
     mock_get_terminal_size.return_value = (47, 3)
 
@@ -247,7 +249,7 @@ def test_watch_normal_call(
     mock_time: unittest.mock.Mock,
     mock_get_output: unittest.mock.Mock,
     mock_sleep: unittest.mock.Mock,
-):
+) -> None:
     mock_stdout.isatty.return_value = True
     mock_get_terminal_size.return_value = (50, 4)
     mock_time.side_effect = [
@@ -296,7 +298,7 @@ def test_watch_normal_call_narrow_header(
     mock_time: unittest.mock.Mock,
     mock_get_output: unittest.mock.Mock,
     mock_sleep: unittest.mock.Mock,
-):
+) -> None:
     mock_stdout.isatty.return_value = True
     mock_get_terminal_size.return_value = (48, 4)
     mock_time.side_effect = [
@@ -345,7 +347,7 @@ def test_watch_normal_call_one_line_output(
     mock_time: unittest.mock.Mock,
     mock_get_output: unittest.mock.Mock,
     mock_sleep: unittest.mock.Mock,
-):
+) -> None:
     mock_stdout.isatty.return_value = True
     mock_get_terminal_size.return_value = (50, 4)
     mock_time.side_effect = [
@@ -393,7 +395,7 @@ def test_watch_precise(
     mock_time: unittest.mock.Mock,
     mock_get_output: unittest.mock.Mock,
     mock_sleep: unittest.mock.Mock,
-):
+) -> None:
     mock_stdout.isatty.return_value = True
     mock_get_terminal_size.return_value = (50, 4)
     mock_time.side_effect = [
@@ -442,7 +444,7 @@ def test_watch_precise_long_command(
     mock_time: unittest.mock.Mock,
     mock_get_output: unittest.mock.Mock,
     mock_sleep: unittest.mock.Mock,
-):
+) -> None:
     mock_stdout.isatty.return_value = True
     mock_get_terminal_size.return_value = (50, 4)
     mock_time.side_effect = [
@@ -491,7 +493,7 @@ def test_watch_debug(
     mock_time: unittest.mock.Mock,
     mock_get_output: unittest.mock.Mock,
     mock_sleep: unittest.mock.Mock,
-):
+) -> None:
     mock_stdout.isatty.return_value = True
     mock_get_terminal_size.return_value = (99, 4)
     mock_time.side_effect = [
@@ -558,7 +560,7 @@ def test_main_no_command(
     mocked_watch: unittest.mock.Mock,
     args: List[str],
     expected_exit_code: int,
-):
+) -> None:
     with pytest.raises(SystemExit) as exception_info:
         py_proc_watch.main(args)
 
@@ -590,7 +592,7 @@ def test_main_with_command(
     expected_interval: float,
     expected_precise: bool,
     expected_debug: bool,
-):
+) -> None:
     py_proc_watch.main(args)
 
     mocked_colorama_just_fix_windows_console.assert_called_once()
