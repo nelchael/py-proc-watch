@@ -20,7 +20,7 @@ jobs:
    strategy:
      fail-fast: false
      matrix:
-       version: ['3.8', '3.9', '3.10', '3.11']
+       version: ['3.8', '3.9', '3.10', '3.11', '3.12']
    runs-on: ubuntu-latest
    steps:
      - uses: actions/checkout@v4
@@ -85,5 +85,5 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - run: npm install -g markdownlint-cli@0.33.0
+      - run: npm install -g markdownlint-cli@0.37.0
       - run: markdownlint . --ignore LICENSE.md
