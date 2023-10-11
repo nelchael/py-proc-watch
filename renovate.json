@@ -7,6 +7,12 @@
   "labels": [
     "dependency-update"
   ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "on wednesday"
+    ]
+  },
   "prConcurrentLimit": 2,
   "prHourlyLimit": 4,
   "reviewers": [
