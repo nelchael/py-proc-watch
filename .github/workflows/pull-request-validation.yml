@@ -22,14 +22,11 @@ jobs:
      matrix:
        version: ['3.8', '3.9', '3.10', '3.11', '3.12']
    runs-on: ubuntu-latest
+   container:
+     image: public.ecr.aws/docker/library/python:${{ matrix.version }}
    steps:
      - uses: actions/checkout@v4
      - run: pipx install 'poetry>=1.5.0'
-     - uses: actions/setup-python@v4
-       id: setup-python
-       with:
-         python-version: ${{ matrix.version }}
-         cache: 'poetry'
      - run: poetry install --sync --no-root
        shell: bash
      - run: poetry run poe check
