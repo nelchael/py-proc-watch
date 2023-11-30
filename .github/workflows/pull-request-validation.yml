@@ -11,7 +11,7 @@ jobs:
    runs-on: ${{ matrix.os }}
    steps:
      - uses: actions/checkout@v4
-     - run: pipx install 'poetry>=1.5.0'
+     - run: pip3 install 'poetry>=1.7.0'
      - run: poetry install --sync --no-root || poetry install --sync --no-root
        shell: bash
      - run: poetry run poe check
@@ -26,7 +26,7 @@ jobs:
      image: public.ecr.aws/docker/library/python:${{ matrix.version }}
    steps:
      - uses: actions/checkout@v4
-     - run: pipx install 'poetry>=1.5.0'
+     - run: pip3 install 'poetry>=1.7.0'
      - run: poetry install --sync --no-root
        shell: bash
      - run: poetry run poe check
@@ -47,7 +47,7 @@ jobs:
           curl --location --silent --request POST --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github+json" "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" \
             -d "{\"state\":\"pending\", \"context\":\"Unit tests\", \"description\":\"checking...\"}"
       - uses: actions/checkout@v4
-      - run: pipx install 'poetry>=1.5.0'
+      - run: pip3 install 'poetry>=1.7.0'
       - run: poetry install --sync --no-root
         shell: bash
       - run: poetry run pytest
