@@ -50,9 +50,11 @@ line-length = 120
 
 [tool.ruff]
 line-length = 120
+
+[tool.ruff.lint]
 select = ["F", "E", "N", "A", "C4", "ISC", "PT", "Q", "RET", "SLF", "ARG", "PTH", "RUF"]
 
-[tool.ruff.flake8-quotes]
+[tool.ruff.lint.flake8-quotes]
 inline-quotes = "double"
 
 [tool.isort]
