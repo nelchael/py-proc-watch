@@ -71,7 +71,7 @@ strict = true
 [tool.poe.tasks]
 _format = [ { shell = "isort . && black ." } ]
 _check = [ { shell = "isort --check . && black --check ." } ]
-_lint = [ { shell = "ruff . && mypy ." } ]
+_lint = [ { shell = "ruff check . && mypy ." } ]
 _test = [ { shell = "pytest" } ]
 format = [ "_format", "_lint" ]
 check = [ "_check", "_lint", "_test" ]
