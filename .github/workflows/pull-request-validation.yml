@@ -43,7 +43,6 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
-      PULL_NUMBER: ${{ github.event.pull_request.number }}
     steps:
       - name: Create statuses
         run: |
