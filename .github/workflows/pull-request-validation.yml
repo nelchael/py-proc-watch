@@ -1,6 +1,10 @@
 on:
   pull_request
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   test-on-operating-system:
    strategy:
@@ -12,7 +16,6 @@ jobs:
      - uses: actions/checkout@v4
      - run: pip3 install 'poetry>=1.7.0'
      - run: poetry install --sync --no-root || poetry install --sync --no-root
-       shell: bash
      - run: poetry run poe check
 
   test-on-python-version:
@@ -27,7 +30,6 @@ jobs:
      - uses: actions/checkout@v4
      - run: pip3 install 'poetry>=1.7.0'
      - run: poetry install --sync --no-root
-       shell: bash
      - run: poetry run poe check
 
   publish-code-metrics:
@@ -48,7 +50,6 @@ jobs:
       - uses: actions/checkout@v4
       - run: pip3 install 'poetry>=1.7.0'
       - run: poetry install --sync --no-root
-        shell: bash
       - run: poetry run pytest
         continue-on-error: true
       - name: Publish code metrics to statuses
