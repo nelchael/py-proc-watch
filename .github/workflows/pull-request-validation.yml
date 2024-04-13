@@ -41,17 +41,14 @@ jobs:
     # See <https://docs.github.com/en/rest/commits/statuses?apiVersion=2022-11-28#create-a-commit-status> for the documentation of the API.
     runs-on: ubuntu-latest
     env:
+      GH_TOKEN: ${{ github.token }}
       COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
       PULL_NUMBER: ${{ github.event.pull_request.number }}
     steps:
       - name: Create statuses
         run: |
-          set -ex
-
-          curl --location --silent --request POST --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github+json" "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" \
-            -d "{\"state\":\"pending\", \"context\":\"Code coverage\", \"description\":\"checking...\"}"
-          curl --location --silent --request POST --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github+json" "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" \
-            -d "{\"state\":\"pending\", \"context\":\"Unit tests\", \"description\":\"checking...\"}"
+          echo "{\"context\":\"Code coverage\", \"state\":\"pending\", \"description\":\"checking...\"}" | gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent --input -
+          echo "{\"context\":\"Unit tests\", \"state\":\"pending\", \"description\":\"checking...\"}" | gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent --input -
       - uses: actions/checkout@v4
       - run: pip3 install 'poetry>=1.7.0'
       - run: poetry install --sync --no-root
@@ -60,28 +57,20 @@ jobs:
       - name: Publish code metrics to statuses
         if: ${{ always() }}
         run: |
-          set -ex
-
           tpc="$(python -c 'import json;tpc=json.load(open(".coverage-report.json","r"))["totals"]["percent_covered"];print(f"{tpc:.2f}");')"
-          curl --location --silent --request POST --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github+json" "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" \
-            -d "{\"state\":\"success\", \"context\":\"Code coverage\", \"description\":\"${tpc}%\"}"
+          echo "{\"context\":\"Code coverage\", \"state\":\"success\", \"description\":\"${tpc}%\"}" | gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent --input -
 
           all_tests="$(yq --input-format=xml '.testsuites.testsuite.+@tests' < .pytest-report.xml)"
           failed_tests="$(yq --input-format=xml '.testsuites.testsuite.+@failures' < .pytest-report.xml)"
           skipped_tests="$(yq --input-format=xml '.testsuites.testsuite.+@skipped' < .pytest-report.xml)"
           error_tests="$(yq --input-format=xml '.testsuites.testsuite.+@errors' < .pytest-report.xml)"
           passed_tests="$((all_tests - failed_tests - skipped_tests - error_tests))"
-          curl --location --silent --request POST --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github+json" "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" \
-            -d "{\"state\":\"success\", \"context\":\"Unit tests\", \"description\":\"Passed: ${passed_tests}, failed: ${failed_tests}, skipped: ${skipped_tests}\"}"
+          echo "{\"context\":\"Unit tests\", \"state\":\"success\", \"description\":\"Passed: ${passed_tests}, failed: ${failed_tests}, skipped: ${skipped_tests}\"}" | gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent --input -
       - name: Set statuses to failure
         if: ${{ failure() || cancelled() }}
         run: |
-          set -ex
-
-          curl --location --silent --request POST --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github+json" "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" \
-            -d "{\"state\":\"failure\", \"context\":\"Code coverage\"}"
-          curl --location --silent --request POST --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" --header "Accept: application/vnd.github+json" "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" \
-            -d "{\"state\":\"failure\", \"context\":\"Unit tests\"}"
+          echo "{\"context\":\"Code coverage\", \"state\":\"failure\"}" | gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent --input -
+          echo "{\"context\":\"Unit tests\", \"state\":\"failure\"}" | gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent --input -
 
   markdownlint:
     runs-on: ubuntu-22.04
