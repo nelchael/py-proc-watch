@@ -10,6 +10,9 @@ defaults:
   run:
     shell: bash
 
+env:
+  PIP_BREAK_SYSTEM_PACKAGES: "true"
+
 jobs:
   test-on-operating-system:
    strategy:
