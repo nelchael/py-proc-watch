@@ -45,11 +45,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
+      COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
     steps:
       - name: Create statuses
         run: |
-          gh api "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" --method POST --silent -f "context=Code coverage" -f "state=pending" -f "description=checking..."
-          gh api "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" --method POST --silent -f "context=Unit tests" -f "state=pending" -f "description=checking..."
+          gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent -f "context=Code coverage" -f "state=pending" -f "description=checking..."
+          gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent -f "context=Unit tests" -f "state=pending" -f "description=checking..."
       - uses: actions/checkout@v4
       - run: pip3 install 'poetry>=1.7.0'
       - run: poetry install --sync --no-root
@@ -60,19 +61,19 @@ jobs:
         if: ${{ always() }}
         run: |
           tpc="$(python -c 'import json;tpc=json.load(open(".coverage-report.json","r"))["totals"]["percent_covered"];print(f"{tpc:.2f}");')"
-          gh api "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" --method POST --silent -f "context=Code coverage" -f "state=success" -f "description=${tpc}%"
+          gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent -f "context=Code coverage" -f "state=success" -f "description=${tpc}%"
 
           all_tests="$(yq --input-format=xml '.testsuites.testsuite.+@tests' < .pytest-report.xml)"
           failed_tests="$(yq --input-format=xml '.testsuites.testsuite.+@failures' < .pytest-report.xml)"
           skipped_tests="$(yq --input-format=xml '.testsuites.testsuite.+@skipped' < .pytest-report.xml)"
           error_tests="$(yq --input-format=xml '.testsuites.testsuite.+@errors' < .pytest-report.xml)"
           passed_tests="$((all_tests - failed_tests - skipped_tests - error_tests))"
-          gh api "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" --method POST --silent -f "context=Unit tests" -f "state=success" -f "description=Passed: ${passed_tests}, failed: ${failed_tests}, skipped: ${skipped_tests}"
+          gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent -f "context=Unit tests" -f "state=success" -f "description=Passed: ${passed_tests}, failed: ${failed_tests}, skipped: ${skipped_tests}"
       - name: Set statuses to failure
         if: ${{ failure() || cancelled() }}
         run: |
-          gh api "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" --method POST --silent -f "context=Code coverage" -f "state=failure"
-          gh api "repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" --method POST --silent -f "context=Unit tests" -f "state=failure"
+          gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent -f "context=Code coverage" -f "state=failure"
+          gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent -f "context=Unit tests" -f "state=failure"
 
   markdownlint:
     runs-on: ubuntu-22.04
