@@ -55,6 +55,7 @@ jobs:
       - run: poetry install --sync --no-root
       - run: poetry run pytest
         continue-on-error: true
+      - run: env | sort
       - name: Publish code metrics to statuses
         if: ${{ always() }}
         run: |
