@@ -78,5 +78,12 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - run: npm install -g markdownlint-cli@0.37.0
+      - uses: actions/cache@v4
+        with:
+          key: npm-cache
+          path: ${{ github.workspace }}/.npm-cache
+      - run: |
+          npm config set cache="${GITHUB_WORKSPACE}/.npm-cache"
+          npm config list
+          npm install -g markdownlint-cli@0.39.0
       - run: markdownlint . --ignore LICENSE.md
