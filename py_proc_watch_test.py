@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 
 import io
+import os
+import pathlib
+import shutil
 import subprocess
-import unittest.mock
+import sys
+import time
 from typing import List
 
 import colorama
 import colorama.ansi
+import mockito  # type: ignore
 import pytest
 
 import py_proc_watch
@@ -50,13 +55,14 @@ def test_reader_thread_func(buffer: io.StringIO, expected_lines: List[str], max_
     assert result.stdout_lines == expected_lines
 
 
-@unittest.mock.patch("subprocess.Popen")
-def test_get_output_no_stdout(mocked_popen: unittest.mock.Mock) -> None:
-    process_mock = unittest.mock.MagicMock()
-    process_mock.__enter__.return_value = process_mock
-    process_mock.stdout = None
+def test_get_output_no_stdout(when: mockito.when) -> None:
+    process_mock = mockito.mock({"stdout": None}, spec=subprocess.Popen)
+    when(process_mock).__enter__().thenReturn(process_mock)
+    when(process_mock).__exit__(*mockito.ARGS)
 
-    mocked_popen.return_value = process_mock
+    when(subprocess).Popen(
+        ["a-command"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="UTF-8"
+    ).thenReturn(process_mock)
 
     with pytest.raises(ValueError, match=r"Invalid number of maximum lines: -1"):
         py_proc_watch.get_output(["a-command"], True, -1)
@@ -64,75 +70,57 @@ def test_get_output_no_stdout(mocked_popen: unittest.mock.Mock) -> None:
     with pytest.raises(py_proc_watch.PyProcWatchError, match=r"Failed to open child process stdout"):
         py_proc_watch.get_output(["a-command"], True, 1)
 
-    mocked_popen.assert_called_once_with(
+
+def test_get_output_failure(when: mockito.when) -> None:
+    process_mock = mockito.mock({"stdout": io.StringIO("No such command\n")}, spec=subprocess.Popen)
+    when(process_mock).__enter__().thenReturn(process_mock)
+    when(process_mock).__exit__(*mockito.ARGS)
+    when(process_mock).poll().thenReturn(None, 12345)
+    when(process_mock).kill()
+
+    when(subprocess).Popen(
         ["a-command"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="UTF-8"
-    )
-
-    process_mock.__enter__.assert_called_once()
-    process_mock.__exit__.assert_called_once()
-
-
-@unittest.mock.patch("subprocess.Popen")
-def test_get_output_failure(mocked_popen: unittest.mock.Mock) -> None:
-    process_mock = unittest.mock.MagicMock()
-    process_mock.__enter__.return_value = process_mock
-    process_mock.stdout = io.StringIO("No such command\n")
-    process_mock.poll.side_effect = [None, 12345]
-
-    mocked_popen.return_value = process_mock
+    ).thenReturn(process_mock)
 
     result = py_proc_watch.get_output(["a-command"], True, 1000)
-
-    mocked_popen.assert_called_once_with(
-        ["a-command"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="UTF-8"
-    )
-    process_mock.__enter__.assert_called_once()
-    process_mock.kill.assert_called_once()
-    process_mock.__exit__.assert_called_once()
 
     assert result.exit_status == 12345
     assert result.stdout_lines == ["No such command\n"]
 
 
-@unittest.mock.patch("subprocess.Popen")
-def test_get_output_small(mocked_popen: unittest.mock.Mock) -> None:
-    process_mock = unittest.mock.MagicMock()
-    process_mock.__enter__.return_value = process_mock
-    process_mock.stdout = io.StringIO("Command result\nSecond line\nThird line\n")
-    process_mock.poll.side_effect = [None, 0]
+def test_get_output_small(when: mockito.when) -> None:
+    process_mock = mockito.mock(
+        {"stdout": io.StringIO("Command result\nSecond line\nThird line\n")}, spec=subprocess.Popen
+    )
+    when(process_mock).__enter__().thenReturn(process_mock)
+    when(process_mock).__exit__(*mockito.ARGS)
+    when(process_mock).poll().thenReturn(None, 0)
+    when(process_mock).kill()
 
-    mocked_popen.return_value = process_mock
+    when(subprocess).Popen(
+        ["a-command"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="UTF-8"
+    ).thenReturn(process_mock)
 
     result = py_proc_watch.get_output(["a-command"], True, 1000)
-
-    mocked_popen.assert_called_once_with(
-        ["a-command"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="UTF-8"
-    )
-    process_mock.__enter__.assert_called_once()
-    process_mock.kill.assert_called_once()
-    process_mock.__exit__.assert_called_once()
 
     assert result.exit_status == 0
     assert result.stdout_lines == ["Command result\n", "Second line\n", "Third line\n"]
 
 
-@unittest.mock.patch("subprocess.Popen")
-def test_get_output_large(mocked_popen: unittest.mock.Mock) -> None:
-    process_mock = unittest.mock.MagicMock()
-    process_mock.__enter__.return_value = process_mock
-    process_mock.stdout = io.StringIO("Command result\nSecond line\nThird line\n" + "filler\n" * 1024)
-    process_mock.poll.side_effect = [None, None, None, 0]
+def test_get_output_large(when: mockito.when) -> None:
+    process_mock = mockito.mock(
+        {"stdout": io.StringIO("Command result\nSecond line\nThird line\n" + "filler\n" * 1024)}, spec=subprocess.Popen
+    )
+    when(process_mock).__enter__().thenReturn(process_mock)
+    when(process_mock).__exit__(*mockito.ARGS)
+    when(process_mock).poll().thenReturn(None, None, None, 0)
+    when(process_mock).kill()
 
-    mocked_popen.return_value = process_mock
+    when(subprocess).Popen(
+        ["a-command"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="UTF-8"
+    ).thenReturn(process_mock)
 
     result = py_proc_watch.get_output(["a-command"], True, 3)
-
-    mocked_popen.assert_called_once_with(
-        ["a-command"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="UTF-8"
-    )
-    process_mock.__enter__.assert_called_once()
-    process_mock.kill.assert_called_once()
-    process_mock.__exit__.assert_called_once()
 
     assert result.exit_status == 0
     assert result.stdout_lines == ["Command result\n", "Second line\n", "Third line\n"]
@@ -168,22 +156,18 @@ def test_ansi_aware_line_trim() -> None:
     )
 
 
-@unittest.mock.patch("shutil.which")
-@unittest.mock.patch("pathlib.Path")
-@unittest.mock.patch("os.getenv")
-def test_check_shell(
-    mock_getenv: unittest.mock.Mock, mock_path: unittest.mock.Mock, mock_which: unittest.mock.Mock
-) -> None:
-    mock_getenv.side_effect = [None, "/bin/shell", "shell", "missing-shell"]
+def test_check_shell(when: mockito.when) -> None:
+    when(os).getenv("SHELL").thenReturn(None, "/bin/shell", "shell", "missing-shell")
 
-    file_mock = unittest.mock.MagicMock()
-    file_mock.is_file.return_value = True
-    non_file_mock = unittest.mock.MagicMock()
-    non_file_mock.is_file.return_value = False
+    file_mock = mockito.mock({"is_file": lambda: True}, spec=pathlib.Path)
+    non_file_mock = mockito.mock({"is_file": lambda: False}, spec=pathlib.Path)
 
-    mock_path.side_effect = [file_mock, non_file_mock, non_file_mock]
+    when(pathlib).Path("/bin/shell").thenReturn(file_mock)
+    when(pathlib).Path("shell").thenReturn(non_file_mock)
+    when(pathlib).Path("missing-shell").thenReturn(non_file_mock)
 
-    mock_which.side_effect = ["/usr/bin/shell", None]
+    when(shutil).which("shell").thenReturn("/usr/bin/shell")
+    when(shutil).which("missing-shell").thenReturn(None)
 
     use_shell, cmd = py_proc_watch.check_shell("kubectl get pod")
     assert use_shell
@@ -200,9 +184,6 @@ def test_check_shell(
     with pytest.raises(py_proc_watch.PyProcWatchError, match=r"Failed to determine shell, tried missing-shell"):
         py_proc_watch.check_shell("kubectl get pod")
 
-    mock_getenv.assert_called()
-    mock_path.assert_called()
-
 
 def test_watch_invalid_params() -> None:
     with pytest.raises(ValueError, match=r"Invalid command: "):
@@ -214,326 +195,226 @@ def test_watch_invalid_params() -> None:
         py_proc_watch.watch("a-command", 24 * 60 * 60 + 1)
 
 
-@unittest.mock.patch("sys.stdout")
-def test_watch_tty_check(mock_stdout: unittest.mock.Mock) -> None:
-    mock_stdout.isatty.return_value = False
+def test_watch_tty_check(when: mockito.when) -> None:
+    when(sys.stdout).isatty().thenReturn(False)
 
     with pytest.raises(py_proc_watch.PyProcWatchError, match=r"stdout is not a tty!"):
         py_proc_watch.watch("a-command")
 
-    mock_stdout.isatty.assert_called_once()
 
-
-@unittest.mock.patch("os.get_terminal_size")
-@unittest.mock.patch("sys.stdout")
-def test_watch_screen_size_check(mock_stdout: unittest.mock.Mock, mock_get_terminal_size: unittest.mock.Mock) -> None:
-    mock_stdout.isatty.return_value = True
-    mock_get_terminal_size.return_value = (47, 3)
+def test_watch_screen_size_check(when: mockito.when) -> None:
+    when(sys.stdout).isatty().thenReturn(True)
+    when(os).get_terminal_size().thenReturn((47, 3))
 
     with pytest.raises(
         py_proc_watch.PyProcWatchError, match=r"Terminal window too small: \(47x3\), need at least \(\d+x\d+\)"
     ):
         py_proc_watch.watch("a-command")
 
-    mock_get_terminal_size.assert_called_once()
 
-
-@unittest.mock.patch("time.sleep")
-@unittest.mock.patch("py_proc_watch.get_output")
-@unittest.mock.patch("time.time")
-@unittest.mock.patch("os.get_terminal_size")
-@unittest.mock.patch("sys.stdout")
-def test_watch_normal_call(
-    mock_stdout: unittest.mock.Mock,
-    mock_get_terminal_size: unittest.mock.Mock,
-    mock_time: unittest.mock.Mock,
-    mock_get_output: unittest.mock.Mock,
-    mock_sleep: unittest.mock.Mock,
-) -> None:
-    mock_stdout.isatty.return_value = True
-    mock_get_terminal_size.return_value = (50, 4)
-    mock_time.side_effect = [
+def test_watch_normal_call(when: mockito.when, expect: mockito.expect) -> None:
+    when(sys.stdout).isatty().thenReturn(True)
+    when(os).get_terminal_size().thenReturn((50, 4))
+    when(time).time().thenReturn(
         0.0,
         0.1,  # Execution time
         0.0,
         0.2,  # Line processing time
         0.0,
         0.3,  # Output write time
-    ]
-    mock_get_output.return_value = py_proc_watch.CommandResult()
-    mock_get_output.return_value.exit_status = 0
-    mock_get_output.return_value.add_line("1\n")
-    mock_get_output.return_value.add_line("2\n")
-    mock_get_output.return_value.add_line("3\n")
-    mock_get_output.return_value.total_read_bytes *= 2
-    mock_sleep.side_effect = KeyboardInterrupt()
+    )
+    command_result = py_proc_watch.CommandResult()
+    command_result.exit_status = 0
+    command_result.add_line("1\n")
+    command_result.add_line("2\n")
+    command_result.add_line("3\n")
+    command_result.total_read_bytes *= 2
+    when(py_proc_watch).get_output(mockito.ANY, mockito.ANY, 4 - 1).thenReturn(command_result)
+    expect(time, times=1).sleep(pytest.approx(1)).thenRaise(KeyboardInterrupt)
+    written_output = mockito.matchers.captor()
+    expect(sys.stdout, times=1).write(written_output)
 
     py_proc_watch.watch("a-command")
 
-    mock_stdout.isatty.assert_called_once()
-    mock_get_terminal_size.assert_called()
-    mock_time.assert_called()
-    mock_get_output.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, 4 - 1)
-    mock_stdout.write.assert_called_once()
-    written_out = mock_stdout.write.call_args.args[0]
-    assert written_out.startswith(
+    assert written_output.value.startswith(
         f"{colorama.Cursor.POS(1, 1)}{colorama.Fore.LIGHTBLACK_EX}Every 1.0s: a-command (exit status: 0) "
     )
     assert (
-        f"1{colorama.ansi.clear_line(0)}\n2{colorama.ansi.clear_line(0)}\n3{colorama.ansi.clear_line(0)}" in written_out
+        f"1{colorama.ansi.clear_line(0)}\n2{colorama.ansi.clear_line(0)}\n3{colorama.ansi.clear_line(0)}"
+        in written_output.value
     )
-    assert written_out.endswith("\033[4;50H")
-    mock_stdout.flush.assert_called_once()
-    mock_sleep.assert_called_once_with(pytest.approx(1.0))
+    assert written_output.value.endswith("\033[4;50H")
 
 
-@unittest.mock.patch("time.sleep")
-@unittest.mock.patch("py_proc_watch.get_output")
-@unittest.mock.patch("time.time")
-@unittest.mock.patch("os.get_terminal_size")
-@unittest.mock.patch("sys.stdout")
-def test_watch_normal_call_narrow_header(
-    mock_stdout: unittest.mock.Mock,
-    mock_get_terminal_size: unittest.mock.Mock,
-    mock_time: unittest.mock.Mock,
-    mock_get_output: unittest.mock.Mock,
-    mock_sleep: unittest.mock.Mock,
-) -> None:
-    mock_stdout.isatty.return_value = True
-    mock_get_terminal_size.return_value = (48, 4)
-    mock_time.side_effect = [
+def test_watch_normal_call_narrow_header(when: mockito.when, expect: mockito.expect) -> None:
+    when(sys.stdout).isatty().thenReturn(True)
+    when(os).get_terminal_size().thenReturn((48, 4))
+    when(time).time().thenReturn(
         0.0,
         0.1,  # Execution time
         0.0,
         0.2,  # Line processing time
         0.0,
         0.3,  # Output write time
-    ]
-    mock_get_output.return_value = py_proc_watch.CommandResult()
-    mock_get_output.return_value.exit_status = 1234567
-    mock_get_output.return_value.add_line("1\n")
-    mock_get_output.return_value.add_line("2\n")
-    mock_get_output.return_value.add_line("3\n")
-    mock_get_output.return_value.total_read_bytes *= 2
-    mock_sleep.side_effect = KeyboardInterrupt()
+    )
+    command_result = py_proc_watch.CommandResult()
+    command_result.exit_status = 1234567
+    command_result.add_line("1\n")
+    command_result.add_line("2\n")
+    command_result.add_line("3\n")
+    command_result.total_read_bytes *= 2
+    when(py_proc_watch).get_output(mockito.ANY, mockito.ANY, 4 - 1).thenReturn(command_result)
+    expect(time, times=1).sleep(pytest.approx(1)).thenRaise(KeyboardInterrupt)
+    written_output = mockito.matchers.captor()
+    expect(sys.stdout, times=1).write(written_output)
 
     py_proc_watch.watch("a-command")
 
-    mock_stdout.isatty.assert_called_once()
-    mock_get_terminal_size.assert_called()
-    mock_time.assert_called()
-    mock_get_output.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, 4 - 1)
-    mock_stdout.write.assert_called_once()
-    written_out = mock_stdout.write.call_args.args[0]
-    assert written_out.startswith(
+    assert written_output.value.startswith(
         f"{colorama.Cursor.POS(1, 1)}{colorama.Fore.LIGHTRED_EX}Every 1.0s: a-command (exit status: 12… "
     )
     assert (
-        f"1{colorama.ansi.clear_line(0)}\n2{colorama.ansi.clear_line(0)}\n3{colorama.ansi.clear_line(0)}" in written_out
+        f"1{colorama.ansi.clear_line(0)}\n2{colorama.ansi.clear_line(0)}\n3{colorama.ansi.clear_line(0)}"
+        in written_output.value
     )
-    assert written_out.endswith("\033[4;48H")
-    mock_stdout.flush.assert_called_once()
-    mock_sleep.assert_called_once_with(pytest.approx(1.0))
+    assert written_output.value.endswith("\033[4;48H")
 
 
-@unittest.mock.patch("time.sleep")
-@unittest.mock.patch("py_proc_watch.get_output")
-@unittest.mock.patch("time.time")
-@unittest.mock.patch("os.get_terminal_size")
-@unittest.mock.patch("sys.stdout")
-def test_watch_normal_call_one_line_output(
-    mock_stdout: unittest.mock.Mock,
-    mock_get_terminal_size: unittest.mock.Mock,
-    mock_time: unittest.mock.Mock,
-    mock_get_output: unittest.mock.Mock,
-    mock_sleep: unittest.mock.Mock,
-) -> None:
-    mock_stdout.isatty.return_value = True
-    mock_get_terminal_size.return_value = (50, 4)
-    mock_time.side_effect = [
+def test_watch_normal_call_one_line_output(when: mockito.when, expect: mockito.expect) -> None:
+    when(sys.stdout).isatty().thenReturn(True)
+    when(os).get_terminal_size().thenReturn((50, 4))
+    when(time).time().thenReturn(
         0.0,
         0.1,  # Execution time
         0.0,
         0.2,  # Line processing time
         0.0,
         0.3,  # Output write time
-    ]
-    mock_get_output.return_value = py_proc_watch.CommandResult()
-    mock_get_output.return_value.exit_status = 123
-    mock_get_output.return_value.add_line("1\n")
-    mock_get_output.return_value.total_read_bytes *= 2
-    mock_sleep.side_effect = KeyboardInterrupt()
+    )
+    command_result = py_proc_watch.CommandResult()
+    command_result.exit_status = 123
+    command_result.add_line("1\n")
+    command_result.total_read_bytes *= 2
+    when(py_proc_watch).get_output(mockito.ANY, mockito.ANY, 4 - 1).thenReturn(command_result)
+    expect(time, times=1).sleep(pytest.approx(1)).thenRaise(KeyboardInterrupt)
+    written_output = mockito.matchers.captor()
+    expect(sys.stdout, times=1).write(written_output)
 
     py_proc_watch.watch("a-command")
 
-    mock_stdout.isatty.assert_called_once()
-    mock_get_terminal_size.assert_called()
-    mock_time.assert_called()
-    mock_get_output.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, 4 - 1)
-    mock_stdout.write.assert_called_once()
-    written_out = mock_stdout.write.call_args.args[0]
-    assert written_out.startswith(
+    assert written_output.value.startswith(
         f"{colorama.Cursor.POS(1, 1)}{colorama.Fore.LIGHTRED_EX}Every 1.0s: a-command (exit status: 123) "
     )
     assert (
         f"1{colorama.ansi.clear_line(0)}\n{py_proc_watch.PADDING_LINE}{py_proc_watch.PADDING_LINE.rstrip()}"
-        in written_out
+        in written_output.value
     )
-    assert written_out.endswith("\033[4;50H")
-    mock_stdout.flush.assert_called_once()
-    mock_sleep.assert_called_once_with(pytest.approx(1.0))
+    assert written_output.value.endswith("\033[4;50H")
 
 
-@unittest.mock.patch("time.sleep")
-@unittest.mock.patch("py_proc_watch.get_output")
-@unittest.mock.patch("time.time")
-@unittest.mock.patch("os.get_terminal_size")
-@unittest.mock.patch("sys.stdout")
-def test_watch_precise(
-    mock_stdout: unittest.mock.Mock,
-    mock_get_terminal_size: unittest.mock.Mock,
-    mock_time: unittest.mock.Mock,
-    mock_get_output: unittest.mock.Mock,
-    mock_sleep: unittest.mock.Mock,
-) -> None:
-    mock_stdout.isatty.return_value = True
-    mock_get_terminal_size.return_value = (50, 4)
-    mock_time.side_effect = [
+def test_watch_precise(when: mockito.when, expect: mockito.expect) -> None:
+    when(sys.stdout).isatty().thenReturn(True)
+    when(os).get_terminal_size().thenReturn((50, 4))
+    when(time).time().thenReturn(
         0.0,
         0.1,  # Execution time
         0.0,
         0.2,  # Line processing time
         0.0,
         0.3,  # Output write time
-    ]
-    mock_get_output.return_value = py_proc_watch.CommandResult()
-    mock_get_output.return_value.exit_status = 0
-    mock_get_output.return_value.add_line("1\n")
-    mock_get_output.return_value.add_line("2\n")
-    mock_get_output.return_value.add_line("3\n")
-    mock_get_output.return_value.total_read_bytes *= 2
-    mock_sleep.side_effect = KeyboardInterrupt()
+    )
+    command_result = py_proc_watch.CommandResult()
+    command_result.exit_status = 0
+    command_result.add_line("1\n")
+    command_result.add_line("2\n")
+    command_result.add_line("3\n")
+    command_result.total_read_bytes *= 2
+    when(py_proc_watch).get_output(mockito.ANY, mockito.ANY, 4 - 1).thenReturn(command_result)
+    expect(time, times=1).sleep(pytest.approx(1.4)).thenRaise(KeyboardInterrupt)
+    written_output = mockito.matchers.captor()
+    expect(sys.stdout, times=1).write(written_output)
 
     py_proc_watch.watch("a-command", interval=2.0, precise=True)
 
-    mock_stdout.isatty.assert_called_once()
-    mock_get_terminal_size.assert_called()
-    mock_time.assert_called()
-    mock_get_output.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, 4 - 1)
-    mock_stdout.write.assert_called_once()
-    written_out = mock_stdout.write.call_args.args[0]
-    assert written_out.startswith(
+    assert written_output.value.startswith(
         f"{colorama.Cursor.POS(1, 1)}{colorama.Fore.LIGHTBLACK_EX}Every 2.0s: a-command (exit status: 0) "
     )
     assert (
-        f"1{colorama.ansi.clear_line(0)}\n2{colorama.ansi.clear_line(0)}\n3{colorama.ansi.clear_line(0)}" in written_out
+        f"1{colorama.ansi.clear_line(0)}\n2{colorama.ansi.clear_line(0)}\n3{colorama.ansi.clear_line(0)}"
+        in written_output.value
     )
-    assert written_out.endswith("\033[4;50H")
-    mock_stdout.flush.assert_called_once()
-    mock_sleep.assert_called_once_with(pytest.approx(1.4))
+    assert written_output.value.endswith("\033[4;50H")
 
 
-@unittest.mock.patch("time.sleep")
-@unittest.mock.patch("py_proc_watch.get_output")
-@unittest.mock.patch("time.time")
-@unittest.mock.patch("os.get_terminal_size")
-@unittest.mock.patch("sys.stdout")
-def test_watch_precise_long_command(
-    mock_stdout: unittest.mock.Mock,
-    mock_get_terminal_size: unittest.mock.Mock,
-    mock_time: unittest.mock.Mock,
-    mock_get_output: unittest.mock.Mock,
-    mock_sleep: unittest.mock.Mock,
-) -> None:
-    mock_stdout.isatty.return_value = True
-    mock_get_terminal_size.return_value = (50, 4)
-    mock_time.side_effect = [
+def test_watch_precise_long_command(when: mockito.when, expect: mockito.expect) -> None:
+    when(sys.stdout).isatty().thenReturn(True)
+    when(os).get_terminal_size().thenReturn((50, 4))
+    when(time).time().thenReturn(
         0.0,
         2.1,  # Execution time
         0.0,
         0.2,  # Line processing time
         0.0,
         0.3,  # Output write time
-    ]
-    mock_get_output.return_value = py_proc_watch.CommandResult()
-    mock_get_output.return_value.exit_status = 123
-    mock_get_output.return_value.add_line("1\n")
-    mock_get_output.return_value.add_line("2\n")
-    mock_get_output.return_value.add_line("3\n")
-    mock_get_output.return_value.total_read_bytes *= 2
-    mock_sleep.side_effect = KeyboardInterrupt()
+    )
+    command_result = py_proc_watch.CommandResult()
+    command_result.exit_status = 123
+    command_result.add_line("1\n")
+    command_result.add_line("2\n")
+    command_result.add_line("3\n")
+    command_result.total_read_bytes *= 2
+    when(py_proc_watch).get_output(mockito.ANY, mockito.ANY, 4 - 1).thenReturn(command_result)
+    expect(time, times=1).sleep(pytest.approx(0)).thenRaise(KeyboardInterrupt)
+    written_output = mockito.matchers.captor()
+    expect(sys.stdout, times=1).write(written_output)
 
     py_proc_watch.watch("a-command", interval=2.0, precise=True)
 
-    mock_stdout.isatty.assert_called_once()
-    mock_get_terminal_size.assert_called()
-    mock_time.assert_called()
-    mock_get_output.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, 4 - 1)
-    mock_stdout.write.assert_called_once()
-    written_out = mock_stdout.write.call_args.args[0]
-    assert written_out.startswith(
+    assert written_output.value.startswith(
         f"{colorama.Cursor.POS(1, 1)}{colorama.Fore.LIGHTRED_EX}Every 2.0s: a-command (exit status: 123) "
     )
     assert (
-        f"1{colorama.ansi.clear_line(0)}\n2{colorama.ansi.clear_line(0)}\n3{colorama.ansi.clear_line(0)}" in written_out
+        f"1{colorama.ansi.clear_line(0)}\n2{colorama.ansi.clear_line(0)}\n3{colorama.ansi.clear_line(0)}"
+        in written_output.value
     )
-    assert written_out.endswith("\033[4;50H")
-    mock_stdout.flush.assert_called_once()
-    mock_sleep.assert_called_once_with(pytest.approx(0.0))
+    assert written_output.value.endswith("\033[4;50H")
 
 
-@unittest.mock.patch("time.sleep")
-@unittest.mock.patch("py_proc_watch.get_output")
-@unittest.mock.patch("time.time")
-@unittest.mock.patch("os.get_terminal_size")
-@unittest.mock.patch("sys.stdout")
-def test_watch_debug(
-    mock_stdout: unittest.mock.Mock,
-    mock_get_terminal_size: unittest.mock.Mock,
-    mock_time: unittest.mock.Mock,
-    mock_get_output: unittest.mock.Mock,
-    mock_sleep: unittest.mock.Mock,
-) -> None:
-    mock_stdout.isatty.return_value = True
-    mock_get_terminal_size.return_value = (99, 4)
-    mock_time.side_effect = [
+def test_watch_debug(when: mockito.when, expect: mockito.expect) -> None:
+    when(sys.stdout).isatty().thenReturn(True)
+    when(os).get_terminal_size().thenReturn((99, 4))
+    when(time).time().thenReturn(
         0.0,
         0.1,  # Execution time
         0.0,
         0.2,  # Line processing time
         0.0,
         0.3,  # Output write time
-    ]
-    mock_get_output.return_value = py_proc_watch.CommandResult()
-    mock_get_output.return_value.exit_status = 123
-    mock_get_output.return_value.add_line("1\n")
-    mock_get_output.return_value.add_line("2\n")
-    mock_get_output.return_value.add_line("3\n")
-    mock_get_output.return_value.total_read_bytes *= 2
-    mock_sleep.side_effect = KeyboardInterrupt()
+    )
+    command_result = py_proc_watch.CommandResult()
+    command_result.exit_status = 123
+    command_result.add_line("1\n")
+    command_result.add_line("2\n")
+    command_result.add_line("3\n")
+    command_result.total_read_bytes *= 2
+    when(py_proc_watch).get_output(mockito.ANY, mockito.ANY, 4 - 1).thenReturn(command_result)
+    expect(time, times=1).sleep(pytest.approx(1)).thenRaise(KeyboardInterrupt)
+    written_output = mockito.matchers.captor()
+    expect(sys.stdout, times=1).write(written_output)
 
     py_proc_watch.watch("a-command", show_debug=True)
 
-    mock_stdout.isatty.assert_called_once()
-    mock_get_terminal_size.assert_called()
-    mock_time.assert_called()
-    mock_get_output.assert_called_once_with(unittest.mock.ANY, unittest.mock.ANY, 4 - 1)
-    mock_stdout.write.assert_called_once()
-    written_out = mock_stdout.write.call_args.args[0]
-    assert written_out.startswith(
+    assert written_output.value.startswith(
         f"{colorama.Cursor.POS(1, 1)}{colorama.Fore.LIGHTRED_EX}Every 1.0s: a-command (exit status: 123) "
     )
     assert (
-        f"1{colorama.ansi.clear_line(0)}\n2{colorama.ansi.clear_line(0)}\n3{colorama.ansi.clear_line(0)}" in written_out
+        f"1{colorama.ansi.clear_line(0)}\n2{colorama.ansi.clear_line(0)}\n3{colorama.ansi.clear_line(0)}"
+        in written_output.value
     )
-    assert written_out.endswith("\033[4;99H")
-    assert "<<w=99,h=4 B:12->6 0.100s+0.200s>>" in written_out
-    mock_stdout.flush.assert_called_once()
-    mock_sleep.assert_called_once_with(pytest.approx(1.0))
+    assert written_output.value.endswith("\033[4;99H")
+    assert "<<w=99,h=4 B:12->6 0.100s+0.200s>>" in written_output.value
 
 
-@unittest.mock.patch("py_proc_watch.watch")
-@unittest.mock.patch("colorama.just_fix_windows_console")
 @pytest.mark.parametrize(
     ("args", "expected_exit_code"),
     [
@@ -555,23 +436,16 @@ def test_watch_debug(
     ],
     ids=str,
 )
-def test_main_no_command(
-    mocked_colorama_just_fix_windows_console: unittest.mock.Mock,
-    mocked_watch: unittest.mock.Mock,
-    args: List[str],
-    expected_exit_code: int,
-) -> None:
+def test_main_no_command(expect: mockito.expect, args: List[str], expected_exit_code: int) -> None:
+    expect(colorama, times=0).just_fix_windows_console()
+    expect(py_proc_watch, times=0).watch(mockito.ANY)
+
     with pytest.raises(SystemExit) as exception_info:
         py_proc_watch.main(args)
 
     assert exception_info.value.code == expected_exit_code
 
-    mocked_colorama_just_fix_windows_console.assert_not_called()
-    mocked_watch.assert_not_called()
 
-
-@unittest.mock.patch("py_proc_watch.watch")
-@unittest.mock.patch("colorama.just_fix_windows_console")
 @pytest.mark.parametrize(
     ("args", "expected_command", "expected_interval", "expected_precise", "expected_debug"),
     [
@@ -585,20 +459,19 @@ def test_main_no_command(
     ids=str,
 )
 def test_main_with_command(
-    mocked_colorama_just_fix_windows_console: unittest.mock.Mock,
-    mocked_watch: unittest.mock.Mock,
+    expect: mockito.expect,
     args: List[str],
     expected_command: str,
     expected_interval: float,
     expected_precise: bool,
     expected_debug: bool,
 ) -> None:
-    py_proc_watch.main(args)
-
-    mocked_colorama_just_fix_windows_console.assert_called_once()
-    mocked_watch.assert_called_once_with(
+    expect(colorama, times=1).just_fix_windows_console()
+    expect(py_proc_watch, times=1).watch(
         command=expected_command,
         interval=pytest.approx(expected_interval),
         precise=expected_precise,
         show_debug=expected_debug,
     )
+
+    py_proc_watch.main(args)

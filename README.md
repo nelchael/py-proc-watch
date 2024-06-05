@@ -51,6 +51,7 @@ Used tools:
 * [`ruff`](https://pypi.org/project/ruff/) for linting
 * [`mypy`](https://pypi.org/project/mypy/) for type checking
 * [`pytest`](https://pypi.org/project/pytest/) for running test
+* [`mockito`](https://pypi.org/project/mockito/) for mocks in unit tests
 * [`poethepoet`](https://pypi.org/project/poethepoet/) for easily running all of the above
 
 The _magic_ incantation:
