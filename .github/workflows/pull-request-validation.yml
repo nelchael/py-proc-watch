@@ -17,64 +17,85 @@ env:
 
 jobs:
   test-on-operating-system:
-   strategy:
-     fail-fast: false
-     matrix:
-       os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
-   runs-on: ${{ matrix.os }}
-   steps:
-     - uses: actions/checkout@v4
-     - run: pip3 install 'poetry>=1.7.0'
-     - run: poetry install --sync --no-root || poetry install --sync --no-root
-     - run: poetry run poe check
-
-  test-on-python-version:
-   strategy:
-     fail-fast: false
-     matrix:
-       version: ['3.8', '3.9', '3.10', '3.11', '3.12']
-   runs-on: ubuntu-latest
-   container:
-     image: public.ecr.aws/docker/library/python:${{ matrix.version }}
-   steps:
-     - uses: actions/checkout@v4
-     - run: pip3 install 'poetry>=1.7.0'
-     - run: poetry install --sync --no-root
-     - run: poetry run poe check
-
-  publish-code-metrics:
-    # See <https://docs.github.com/en/rest/commits/statuses?apiVersion=2022-11-28#create-a-commit-status> for the documentation of the API.
-    runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ github.token }}
-      COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+    runs-on: ${{ matrix.os }}
+    outputs:
+      state: ${{ steps.set-outputs.outputs.state }}
+      coverage: ${{ steps.set-outputs.outputs.coverage }}
+      passed_tests: ${{ steps.set-outputs.outputs.passed_tests }}
+      failed_tests: ${{ steps.set-outputs.outputs.failed_tests }}
+      skipped_tests: ${{ steps.set-outputs.outputs.skipped_tests }}
     steps:
-      - name: Create statuses
-        run: |
-          gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent -f "context=Code coverage" -f "state=pending" -f "description=checking..."
-          gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent -f "context=Unit tests" -f "state=pending" -f "description=checking..."
       - uses: actions/checkout@v4
-      - run: pip3 install 'poetry>=1.7.0'
-      - run: poetry install --sync --no-root
-      - run: poetry run pytest
-        continue-on-error: true
-      - name: Publish code metrics to statuses
-        if: ${{ always() }}
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "poetry"
+      - name: Install dependencies
+        run: poetry install --sync --no-root || poetry install --sync --no-root
+      - name: Run checks and tests
+        run: poetry run poe check
+        id: tests
+      - name: Save test metrics
+        id: set-outputs
+        if: ${{ matrix.os == 'ubuntu-latest' && always() }}
         run: |
-          tpc="$(python -c 'import json;tpc=json.load(open(".coverage-report.json","r"))["totals"]["percent_covered"];print(f"{tpc:.2f}");')"
-          gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent -f "context=Code coverage" -f "state=success" -f "description=${tpc}%"
+          state="success"
+          if [[ "${{ steps.tests.outcome }}" == "failure" ]]; then
+            state="failure"
+          fi
+
+          echo "state=${state}" >> "${GITHUB_OUTPUT}"
+
+          echo "coverage=$(python -c 'import json;tpc=json.load(open(".coverage-report.json","r"))["totals"]["percent_covered"];print(f"{tpc:.2f}");')" >> "${GITHUB_OUTPUT}"
 
           all_tests="$(yq --input-format=xml '.testsuites.testsuite.+@tests' < .pytest-report.xml)"
           failed_tests="$(yq --input-format=xml '.testsuites.testsuite.+@failures' < .pytest-report.xml)"
           skipped_tests="$(yq --input-format=xml '.testsuites.testsuite.+@skipped' < .pytest-report.xml)"
           error_tests="$(yq --input-format=xml '.testsuites.testsuite.+@errors' < .pytest-report.xml)"
           passed_tests="$((all_tests - failed_tests - skipped_tests - error_tests))"
-          gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent -f "context=Unit tests" -f "state=success" -f "description=Passed: ${passed_tests}, failed: ${failed_tests}, skipped: ${skipped_tests}"
-      - name: Set statuses to failure
-        if: ${{ failure() || cancelled() }}
+          echo "passed_tests=${passed_tests}" >> "${GITHUB_OUTPUT}"
+          echo "failed_tests=${failed_tests}" >> "${GITHUB_OUTPUT}"
+          echo "skipped_tests=${skipped_tests}" >> "${GITHUB_OUTPUT}"
+
+  test-on-python-version:
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "${{ matrix.version }}"
+          cache: "poetry"
+      - name: Install dependencies
+        run: poetry install --sync --no-root
+      - name: Run checks and tests
+        run: poetry run poe check
+
+  publish-code-metrics:
+    # See <https://docs.github.com/en/rest/commits/statuses?apiVersion=2022-11-28#create-a-commit-status> for the documentation of the API.
+    runs-on: ubuntu-latest
+    needs:
+      - test-on-operating-system
+    if: ${{ always() }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Publish code metrics as commit status
         run: |
-          gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent -f "context=Code coverage" -f "state=failure"
-          gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent -f "context=Unit tests" -f "state=failure"
+          gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent -f "context=Code coverage" -f "state=${{ needs.test-on-operating-system.outputs.state }}" -f "description=${{ needs.test-on-operating-system.outputs.coverage }}%"
+          gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent -f "context=Unit tests" -f "state=${{ needs.test-on-operating-system.outputs.state }}" -f "description=Passed: ${{ needs.test-on-operating-system.outputs.passed_tests }}, failed: ${{ needs.test-on-operating-system.outputs.failed_tests }}, skipped: ${{ needs.test-on-operating-system.outputs.skipped_tests }}"
 
   markdownlint:
     runs-on: ubuntu-22.04
@@ -84,7 +105,8 @@ jobs:
         with:
           key: npm-cache
           path: ${{ github.workspace }}/.npm-cache
-      - run: |
+      - name: Install markdownlint
+        run: |
           npm config set cache="${GITHUB_WORKSPACE}/.npm-cache"
           npm config list
           npm install -g markdownlint-cli@0.39.0
