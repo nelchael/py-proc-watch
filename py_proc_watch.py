@@ -64,7 +64,13 @@ def get_output(command: List[str], shell: bool, max_lines: int) -> CommandResult
         raise ValueError(f"Invalid number of maximum lines: {max_lines}")
 
     with subprocess.Popen(
-        command, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="UTF-8"
+        command,
+        shell=shell,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="UTF-8",
+        errors="backslashreplace",
     ) as proc:
         if proc.stdout is None:
             raise PyProcWatchError("Failed to open child process stdout")
