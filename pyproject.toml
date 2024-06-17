@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "py-proc-watch"
-version = "0.2.1"
+version = "0.2.2"
 description = "Pure Python procps \"watch\" replacement"
 authors = ["Krzysztof Pawlik <krzysiek.pawlik@people.pl>"]
 maintainers = ["Krzysztof Pawlik <krzysiek.pawlik@people.pl>"]
