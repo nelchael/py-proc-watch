@@ -61,7 +61,13 @@ def test_get_output_no_stdout(when: mockito.when) -> None:
     when(process_mock).__exit__(*mockito.ARGS)
 
     when(subprocess).Popen(
-        ["a-command"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="UTF-8"
+        ["a-command"],
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="UTF-8",
+        errors="backslashreplace",
     ).thenReturn(process_mock)
 
     with pytest.raises(ValueError, match=r"Invalid number of maximum lines: -1"):
@@ -79,7 +85,13 @@ def test_get_output_failure(when: mockito.when) -> None:
     when(process_mock).kill()
 
     when(subprocess).Popen(
-        ["a-command"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="UTF-8"
+        ["a-command"],
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="UTF-8",
+        errors="backslashreplace",
     ).thenReturn(process_mock)
 
     result = py_proc_watch.get_output(["a-command"], True, 1000)
@@ -98,7 +110,13 @@ def test_get_output_small(when: mockito.when) -> None:
     when(process_mock).kill()
 
     when(subprocess).Popen(
-        ["a-command"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="UTF-8"
+        ["a-command"],
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="UTF-8",
+        errors="backslashreplace",
     ).thenReturn(process_mock)
 
     result = py_proc_watch.get_output(["a-command"], True, 1000)
@@ -117,7 +135,13 @@ def test_get_output_large(when: mockito.when) -> None:
     when(process_mock).kill()
 
     when(subprocess).Popen(
-        ["a-command"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="UTF-8"
+        ["a-command"],
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="UTF-8",
+        errors="backslashreplace",
     ).thenReturn(process_mock)
 
     result = py_proc_watch.get_output(["a-command"], True, 3)
