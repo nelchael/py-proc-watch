@@ -199,13 +199,13 @@ colors = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "mockito"
-version = "1.5.0"
+version = "1.5.1"
 description = "Spying framework"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "mockito-1.5.0-py3-none-any.whl", hash = "sha256:b4df89187bcd0b1bac44b7d6bcbd03ad652bae800a3effbd2e077276ca69a862"},
-    {file = "mockito-1.5.0.tar.gz", hash = "sha256:036128da7daf2da89a0b637bd73321e992ff65ba8a39876ca233eec17eb77e8f"},
+    {file = "mockito-1.5.1-py3-none-any.whl", hash = "sha256:218c695baaf8e27980a263c9c1c4efb60ae8bbaf171be28558ec7ef3dae1ead3"},
+    {file = "mockito-1.5.1.tar.gz", hash = "sha256:405624091715cc3954e2fa39cc50e508d59778d4d2fb56c8db7bfa5f593d3303"},
 ]
 
 [[package]]
@@ -301,19 +301,19 @@ files = [
 
 [[package]]
 name = "platformdirs"
-version = "4.2.2"
+version = "4.3.3"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "platformdirs-4.2.2-py3-none-any.whl", hash = "sha256:2d7a1657e36a80ea911db832a8a6ece5ee53d8de21edd5cc5879af6530b1bfee"},
-    {file = "platformdirs-4.2.2.tar.gz", hash = "sha256:38b7b51f512eed9e84a22788b4bce1de17c0adb134d6becb09836e37d8654cd3"},
+    {file = "platformdirs-4.3.3-py3-none-any.whl", hash = "sha256:50a5450e2e84f44539718293cbb1da0a0885c9d14adf21b77bae4e66fc99d9b5"},
+    {file = "platformdirs-4.3.3.tar.gz", hash = "sha256:d4e0b7d8ec176b341fb03cb11ca12d0276faa8c485f9cd218f613840463fc2c0"},
 ]
 
 [package.extras]
-docs = ["furo (>=2023.9.10)", "proselint (>=0.13)", "sphinx (>=7.2.6)", "sphinx-autodoc-typehints (>=1.25.2)"]
-test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4.3)", "pytest-cov (>=4.1)", "pytest-mock (>=3.12)"]
-type = ["mypy (>=1.8)"]
+docs = ["furo (>=2024.8.6)", "proselint (>=0.14)", "sphinx (>=8.0.2)", "sphinx-autodoc-typehints (>=2.4)"]
+test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=8.3.2)", "pytest-cov (>=5)", "pytest-mock (>=3.14)"]
+type = ["mypy (>=1.11.2)"]
 
 [[package]]
 name = "pluggy"
