@@ -98,7 +98,7 @@ jobs:
           gh api "repos/${GITHUB_REPOSITORY}/statuses/${COMMIT_SHA}" --method POST --silent -f "context=Unit tests" -f "state=${{ needs.test-on-operating-system.outputs.state }}" -f "description=Passed: ${{ needs.test-on-operating-system.outputs.passed_tests }}, failed: ${{ needs.test-on-operating-system.outputs.failed_tests }}, skipped: ${{ needs.test-on-operating-system.outputs.skipped_tests }}"
 
   markdownlint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
