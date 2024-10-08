@@ -29,10 +29,10 @@ jobs:
       failed_tests: ${{ steps.set-outputs.outputs.failed_tests }}
       skipped_tests: ${{ steps.set-outputs.outputs.skipped_tests }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.1
       - name: Install poetry
         run: pipx install poetry
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5.2.0
         with:
           python-version: "3.13"
           cache: "poetry"
@@ -70,10 +70,10 @@ jobs:
         version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.1
       - name: Install poetry
         run: pipx install poetry
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5.2.0
         with:
           python-version: "${{ matrix.version }}"
           cache: "poetry"
@@ -100,8 +100,8 @@ jobs:
   markdownlint:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v4
+      - uses: actions/checkout@v4.2.1
+      - uses: actions/cache@v4.1.1
         with:
           key: npm-cache
           path: ${{ github.workspace }}/.npm-cache
