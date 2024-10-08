@@ -27,7 +27,7 @@ packages = [
 pywatch = 'py_proc_watch:_entry_point'
 
 [tool.poetry.dependencies]
-python = "^3.8.1"
+python = "^3.9"
 colorama = "^0.4.0"
 
 [tool.poetry.group.dev.dependencies]
