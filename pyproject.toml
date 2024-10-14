@@ -32,7 +32,7 @@ colorama = "^0.4.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "24.10.0"
-coverage = "7.6.2"
+coverage = "7.6.3"
 isort = "5.13.2"
 mypy = "1.11.2"
 poethepoet = "0.29.0"
