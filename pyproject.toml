@@ -39,7 +39,7 @@ poethepoet = "0.32.1"
 pytest = "8.3.4"
 pytest-cov = "6.0.0"
 pytest-mockito = "0.0.4"
-ruff = "0.9.2"
+ruff = "0.9.3"
 types-colorama = "0.4.15.20240311"
 
 [build-system]
