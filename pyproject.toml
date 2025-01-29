@@ -31,7 +31,7 @@ python = "^3.9"
 colorama = "^0.4.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "24.10.0"
+black = "25.1.0"
 coverage = "7.6.10"
 isort = "6.0.0"
 mypy = "1.14.1"
