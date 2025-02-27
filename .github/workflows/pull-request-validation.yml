@@ -101,7 +101,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4.2.2
-      - uses: actions/cache@v4.2.1
+      - uses: actions/cache@v4.2.2
         with:
           key: npm-cache
           path: ${{ github.workspace }}/.npm-cache
